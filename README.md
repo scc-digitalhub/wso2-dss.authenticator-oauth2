@@ -8,10 +8,10 @@ This component provides a set of bundles for the purpose of enabling OAUTH2 auth
   * [Configuring OAuth2 providers](#2-configuring-oauth2-providers)
     * [2.1 Google OAuth2 provider configurations](#21-google-oauth2-provider-configurations)
       * [2.1.1 Google Developer Console Config](#211-google-developer-console-config)
-      * [2.1.2 DSS Config](212-dss-config)
+      * [2.1.2 DSS Config](#212-dss-config)
     * [2.2 AAC OAuth2 provider configurations](#22-aac-oauth2-provider-configurations)
       * [2.2.1 AAC Developer Console Config](#221-aac-developer-console-config)
-      * [2.2.2 DSS Config](222-dss-config)
+      * [2.2.2 DSS Config](#222-dss-config)
   
 # 1. Running
 
