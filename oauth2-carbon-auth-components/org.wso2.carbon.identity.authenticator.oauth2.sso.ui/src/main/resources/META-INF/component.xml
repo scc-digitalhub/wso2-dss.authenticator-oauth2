@@ -1,0 +1,26 @@
+
+<component xmlns="http://products.wso2.org/carbon">
+    <menus>
+        <menu>
+            <id>oauth2_sso_auth</id>
+            <i18n-key>oauth2.sso.menu</i18n-key>
+            <i18n-bundle>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.i18n.Resources</i18n-bundle>
+            <skip-authentication>
+                <skip-link>../oauth2-sso-acs/notifications.jsp</skip-link>
+                <skip-link>../oauth2-sso-acs/authFailure.jsp</skip-link>
+                <skip-link>/carbon/oauth2-sso-acs/authFailure.jsp</skip-link>
+                <skip-link>/oauth2_acs</skip-link>
+            </skip-authentication>
+        </menu>
+    </menus>
+    
+    <servlets>
+		<servlet id="OAUTH2SSOAssertionConsumerService">
+			<servlet-name>OAUTH2SSOAssertionConsumerService</servlet-name>
+			<url-pattern>/oauth2_acs</url-pattern>
+			<display-name>OAUTH2 SSO Consumer Servlet</display-name>
+			<servlet-class>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.SSOAssertionConsumerService</servlet-class>
+		</servlet>
+	</servlets>
+	
+</component>

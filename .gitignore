@@ -7,6 +7,8 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-
+oauth2-carbon-auth-components/org.wso2.carbon.identity.authenticator.oauth2.sso/target
+oauth2-carbon-auth-components/org.wso2.carbon.identity.authenticator.oauth2.sso.ui/target
+oauth2-carbon-auth-components/org.wso2.carbon.identity.authenticator.oauth2.sso.stub/target
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar

@@ -1,0 +1,93 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>co.innovation.lab</groupId>
+    <artifactId>oauth2-carbon-auth-components</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso.stub</artifactId>
+  <packaging>bundle</packaging>
+  <name>Custom Authenticator with OAUTH2 - Stub Bundle</name>
+  <description>Custom Authenticator with OAUTH2 - Stub Bundle</description>
+  
+  
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>source-code-generation</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
+                                    <arg line="-uri src/main/resources/OAUTH2SSOAuthenticationService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.identity.authenticator.oauth2.sso.stub -ns2p http://sso.oauth2.authenticator.identity.carbon.wso2.org=org.wso2.carbon.identity.authenticator.oauth2.sso.stub,http://org.apache.axis2/xsd=org.wso2.carbon.identity.authenticator.oauth2.sso.stub.types.axis2,http://dto.sso.oauth2.authenticator.identity.carbon.wso2.org/xsd=org.wso2.carbon.identity.authenticator.oauth2.sso.stub.types" />
+                                    <classpath refid="maven.dependency.classpath" />
+                                    <classpath refid="maven.compile.classpath" />
+                                    <classpath refid="maven.runtime.classpath" />
+                                </java>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>
+                                    target/generated-code/src
+                                </source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Export-Package>
+                            org.wso2.carbon.identity.authenticator.oauth2.sso.stub.*;
+                            version="${oauth2.auth.package.export.version}",
+                            org.wso2.carbon.identity.authenticator.oauth2.sso.xsd.*;
+                            version="${oauth2.auth.package.export.version}"
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.axis2.wso2</groupId>
+            <artifactId>axis2</artifactId>
+            <version>1.6.1.wso2v12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2.wso2</groupId>
+            <artifactId>axis2-client</artifactId>
+            <version>1.6.1.wso2v12</version>
+        </dependency>
+    </dependencies>
+  
+</project>
