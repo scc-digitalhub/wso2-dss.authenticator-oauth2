@@ -56,17 +56,13 @@ public class SSOSessionManager {
 
     public void handleLogout(String sessionIndex) {
 
-    	log.info("inside handling logout: "+sessionIndex);
         HttpSession session = (HttpSession) sessionMap.get(sessionIndex);
 
-        log.info(session);
         if (session == null) {
-        	log.info("eshte null");
             //send cluster message
             sendSessionInvalidationClusterMessage(sessionIndex);
             return;
         }
-        log.info("jo, nuk eshte null");
         CarbonSSOSessionManager ssoSessionManager = OAUTH2SSOAuthFEDataHolder.getInstance()
                 .getCarbonSSOSessionManager();
 

@@ -355,6 +355,19 @@ public class Util {
     }
     
     /**
+     * Returns the URL of the endpoint to access the API of roles informations
+     * 
+     * @return 
+     */
+    public static String getOauthProviderName() {
+
+        if (!initSuccess) {
+            initSSOConfigParams();
+        }
+        return parameters.get(OAUTH2SSOAuthenticatorConstants.OAUTH_PROVIDER_NAME);
+    }
+    
+    /**
      * Returns the URL of the endpoint to access the API of user informations
      * 
      * @return 

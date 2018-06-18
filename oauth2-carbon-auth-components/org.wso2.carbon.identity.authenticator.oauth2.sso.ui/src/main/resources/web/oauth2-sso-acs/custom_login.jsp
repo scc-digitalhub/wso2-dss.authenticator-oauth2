@@ -42,6 +42,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 }
 String state =  UUID.randomUUID().toString();
 // add new state attribute
+String OauthProviderName = Util.getOauthProviderName();
 request.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.OAUTH2_AUTH_CODE_STATE, state);
 String urlAuth = Util.getAuthorizationUrl() + "?"
 		+ "response_type=code"
@@ -243,7 +244,7 @@ String urlAuth = Util.getAuthorizationUrl() + "?"
                                 <tr>
                                     <td>&nbsp;</td>
                                     <td>
-                                        <input type="button" value="<fmt:message key="log.in.oauth2.aac"/>"
+                                        <input type="button" value="<fmt:message key="log.in.oauth2"/> <%=OauthProviderName%>"
                                                class="button" tabindex="4" onclick="goToAuth();"/>
                                     </td>
                                 </tr>

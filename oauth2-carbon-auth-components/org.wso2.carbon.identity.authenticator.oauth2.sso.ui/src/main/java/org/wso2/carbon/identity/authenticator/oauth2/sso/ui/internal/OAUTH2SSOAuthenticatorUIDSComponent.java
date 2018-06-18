@@ -101,17 +101,17 @@ public class OAUTH2SSOAuthenticatorUIDSComponent {
                     props.put(CarbonConstants.AUTHENTICATOR_TYPE, authenticator.getAuthenticatorName());
                     ctxt.getBundleContext().registerService(CarbonUIAuthenticator.class.getName(),
                             authenticator, props);
-                    log.debug("AAC SSO Authenticator BE Bundle activated successfully.");
+                    log.debug("OAUTH2 SSO Authenticator BE Bundle activated successfully.");
                 } else {
                     log.warn("Initialization failed for SSO Authenticator. Starting with the default authenticator");
                 }
             } else {
                 if (log.isDebugEnabled()) {
-                    log.debug("AAC SSO Authenticator is disabled");
+                    log.debug("OAUTH2 SSO Authenticator is disabled");
                 }
             }
         } catch (Throwable e) {
-            log.error("AAC Authentication Failed");
+            log.error("OAUTH2 Authentication Failed");
         }
     }
 

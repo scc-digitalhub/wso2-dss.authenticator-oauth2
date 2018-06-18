@@ -53,6 +53,7 @@ In the file repository/conf/security/authenticators.xml put the following xml co
     <Authenticator name="OAUTH2SSOAuthenticator" disabled="false">
 	  <Priority>3</Priority>
 	  <Config>
+	     <Parameter name="OauthProviderName">Google</Parameter>
 	     <Parameter name="LoginPage">/carbon/admin/login.jsp</Parameter>
              <Parameter name="ServiceProviderID">carbonServer</Parameter>
 	     <Parameter name="LandingPage">https://localhost:9444/carbon/oauth2-sso-acs/custom_login.jsp</Parameter>
@@ -85,6 +86,7 @@ In the file repository/conf/security/authenticators.xml put the following xml co
     <Authenticator name="OAUTH2SSOAuthenticator" disabled="false">
 	  <Priority>3</Priority>
 	  <Config>
+	     <Parameter name="OauthProviderName">AAC</Parameter>
 	     <Parameter name="LoginPage">/carbon/admin/login.jsp</Parameter>
              <Parameter name="ServiceProviderID">carbonServer</Parameter>
 	     <Parameter name="IdentityProviderSSOServiceURL">http://localhost:8080/aac</Parameter>

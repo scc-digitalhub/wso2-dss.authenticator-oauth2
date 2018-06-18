@@ -84,11 +84,10 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             if (isAuthenticated) {
                 CarbonSSOSessionManager ssoSessionManager =
                         OAUTH2SSOAuthFEDataHolder.getInstance().getCarbonSSOSessionManager();
-                String sessionId = getSessionIndexFromResponse(OAUTH2Response);
+                String sessionId = getSessionIndexFromResponse(OAUTH2Response,request);
                 if (sessionId != null) {
                     // Session id is provided only when Single Logout enabled at the IdP.
-                    ssoSessionManager.addSessionMapping(getSessionIndexFromResponse(OAUTH2Response),
-                            session.getId());
+                    ssoSessionManager.addSessionMapping(sessionId,session.getId());
                     request.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX, sessionId);
                     SSOSessionManager.getInstance().addSession(sessionId, request.getSession());
                 }
@@ -237,19 +236,9 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
      * @param response OAUTH2 Response
      * @return Session Index value contained in the Response
      */
-    private String getSessionIndexFromResponse(Object response) {
-        //List<Assertion> assertions = response.getAssertions();
-        String sessionIndex = "sessionIndex";//null;
-//        if (assertions != null && assertions.size() > 0) {
-//            // There can be only one assertion in a OAUTH2 Response, so get the first one
-//            List<AuthnStatement> authnStatements = assertions.get(0).getAuthnStatements();
-//            if (authnStatements != null && authnStatements.size() > 0) {
-//                // There can be only one authentication stmt inside the OAUTH2 assertion of a OAUTH2 Response
-//                AuthnStatement authStmt = authnStatements.get(0);
-//                sessionIndex = authStmt.getSessionIndex();
-//            }
-//        }
-        return sessionIndex;
+    private String getSessionIndexFromResponse(Object response,HttpServletRequest req) {
+        String sessionIndex = (String) req.getSession().getAttribute(OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX);
+       return sessionIndex;
     }
 
     /**

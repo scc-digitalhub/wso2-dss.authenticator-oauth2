@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  *
@@ -230,8 +231,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        	Map<String,Object> userInfo = handleAPI_GET_Request(req, resp, Util.getApiUserInfoUrl());
 	        	if(userInfo != null) {
 	        		username = (String) userInfo.get(Util.getLoginAttributeName());
-		        	boolean tenantProvision = Boolean.parseBoolean(Util.getTenantProvisioningEnabled());
-		        	if(tenantProvision) {
+		        	boolean roleProvision = Util.getApiRoleInfoUrl() != null && !Util.getApiRoleInfoUrl().equals("");
+		        	if(roleProvision) {
 		        		List<AACRole> rolesInfo = handleAPI_ROLES_Request(req, resp, Util.getApiRoleInfoUrl());
 		        		if(rolesInfo != null && rolesInfo.size()>0) {
 		        			tenantDomain = (String) rolesInfo.get(0).getRole();
@@ -241,7 +242,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        			throw new Exception("NO Role.This service is not enabled for your organization. Please contact the administrator of your organization.");
 		        		}
 		        	}
-		        	if(false) { //!username.contains("@")
+		        	if(!username.contains("@")) { 
 		        		username = username+"@"+tenantContext+"@"+tenantDomain;
 		        	}else {
 		        		username = username+"@"+tenantDomain;
@@ -267,7 +268,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
 	        req.getSession().setAttribute("refresh_token", this.refresh_token);
 	        String sessionIndex = null;
-	        sessionIndex = "sessionIndex";
+	        sessionIndex = UUID.randomUUID().toString();
 	        String url = req.getRequestURI();
 	        url = url.replace("oauth2_acs","carbon/admin/login_action.jsp?username=" + URLEncoder.encode(username, "UTF-8"));
 	        if(sessionIndex != null) {

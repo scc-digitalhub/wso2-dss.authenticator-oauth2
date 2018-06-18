@@ -32,8 +32,7 @@ public class OAUTH2SSOAuthDSComponent {
 
     protected void activate(ComponentContext ctxt) {
         try {
-        	System.out.println("AAC SSO Authenticator BE Bundle started");
-        	log.debug("AAC SSO Authenticator BE Bundle started .");
+        	log.debug("OAUTH2 SSO Authenticator BE Bundle started .");
             OAUTH2SSOAuthBEDataHolder.getInstance().setBundleContext(ctxt.getBundleContext());
             OAUTH2SSOAuthenticator authenticator = new OAUTH2SSOAuthenticator();
             Hashtable<String, String> props = new Hashtable<String, String>();
@@ -41,18 +40,18 @@ public class OAUTH2SSOAuthDSComponent {
             ctxt.getBundleContext().registerService(CarbonServerAuthenticator.class.getName(), authenticator, props);
 
             if (log.isDebugEnabled()) {
-                log.debug("AAC SSO Authenticator BE Bundle activated successfuly.");
+                log.debug("OAUTH2 SSO Authenticator BE Bundle activated successfuly.");
             }
         } catch (Throwable e) {
             if (log.isDebugEnabled()) {
-                log.error("AAC SSO Authenticator BE Bundle activation Failed.");
+                log.error("OAUTH2 SSO Authenticator BE Bundle activation Failed.");
             }
         }
     }
 
     protected void deactivate(ComponentContext ctxt) {
         OAUTH2SSOAuthBEDataHolder.getInstance().setBundleContext(null);
-        log.debug("AAC SSO Authenticator BE Bundle is deactivated ");
+        log.debug("OAUTH2 SSO Authenticator BE Bundle is deactivated ");
     }
 
     protected void setRegistryService(RegistryService registryService) {
