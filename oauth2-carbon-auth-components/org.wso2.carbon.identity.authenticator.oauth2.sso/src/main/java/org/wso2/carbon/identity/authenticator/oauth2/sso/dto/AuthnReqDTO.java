@@ -7,6 +7,7 @@ public class AuthnReqDTO {
 
     private String response;
     private String tenant;
+    private boolean isAdmin;
 
     public String getResponse() {
         return response;
@@ -22,6 +23,14 @@ public class AuthnReqDTO {
 
     public void setTenant(String tenant) {
         this.tenant = tenant;
+    }
+    
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
 }

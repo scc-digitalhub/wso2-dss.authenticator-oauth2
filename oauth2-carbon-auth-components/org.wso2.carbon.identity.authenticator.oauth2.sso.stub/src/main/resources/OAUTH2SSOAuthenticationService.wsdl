@@ -58,6 +58,7 @@
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.sso.oauth2.authenticator.identity.carbon.wso2.org/xsd">
             <xs:complexType name="AuthnReqDTO">
                 <xs:sequence>
+                    <xs:element minOccurs="0" name="isAdmin" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="response" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="tenant" nillable="true" type="xs:string"/>
                 </xs:sequence>
@@ -309,6 +310,11 @@
         <xs:schema xmlns:ax2113="http://dto.sso.oauth2.authenticator.identity.carbon.wso2.org/xsd" xmlns:ax2188="http://context.axis2.apache.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://sso.oauth2.authenticator.identity.carbon.wso2.org">
             <xs:import namespace="http://dto.sso.oauth2.authenticator.identity.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://context.axis2.apache.org/xsd"/>
+            <xs:element name="logout">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="login">
                 <xs:complexType>
                     <xs:sequence>
@@ -321,11 +327,6 @@
                     <xs:sequence>
                         <xs:element minOccurs="0" name="return" type="xs:boolean"/>
                     </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="logout">
-                <xs:complexType>
-                    <xs:sequence/>
                 </xs:complexType>
             </xs:element>
             <xs:element name="authenticateWithRememberMe">
@@ -1066,13 +1067,13 @@
     </wsdl:binding>
     <wsdl:service name="OAUTH2SSOAuthenticationService">
         <wsdl:port name="OAUTH2SSOAuthenticationServiceHttpsSoap11Endpoint" binding="ns:OAUTH2SSOAuthenticationServiceSoap11Binding">
-            <soap:address location="https://172.17.0.1:9443/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsSoap11Endpoint/"/>
+            <soap:address location="https://172.17.0.1:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsSoap11Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="OAUTH2SSOAuthenticationServiceHttpsSoap12Endpoint" binding="ns:OAUTH2SSOAuthenticationServiceSoap12Binding">
-            <soap12:address location="https://172.17.0.1:9443/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsSoap12Endpoint/"/>
+            <soap12:address location="https://172.17.0.1:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsSoap12Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="OAUTH2SSOAuthenticationServiceHttpsEndpoint" binding="ns:OAUTH2SSOAuthenticationServiceHttpBinding">
-            <http:address location="https://172.17.0.1:9443/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsEndpoint/"/>
+            <http:address location="https://172.17.0.1:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsEndpoint/"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

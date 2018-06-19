@@ -27,6 +27,8 @@ public final class OAUTH2SSOAuthenticatorConstants {
     public static final String LOG_OUT_REQ = "logout";
     public static final String LOGGED_IN_USER = "loggedInUser";
     public static final String HTTP_POST_PARAM_OAUTH2_ROLES = "Roles";
+    public static final String IS_ADMIN = "isAdmin";
+    public static final String ROLE_PROVIDER = "ROLE_PROVIDER";
 
     public static final String IDP_SESSION_INDEX = "idpSessionIndex";
 

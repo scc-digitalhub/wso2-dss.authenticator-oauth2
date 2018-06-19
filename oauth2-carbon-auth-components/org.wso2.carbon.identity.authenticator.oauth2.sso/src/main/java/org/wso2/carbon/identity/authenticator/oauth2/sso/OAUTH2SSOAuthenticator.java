@@ -59,6 +59,8 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
     private static final String AUTHENTICATOR_NAME = OAUTH2SSOAuthenticatorConstants.AUTHENTICATOR_NAME;
     private SecureRandom random = new SecureRandom();
     private int timeStampSkewInSeconds = 300;
+    private TenantServiceClient tenantClient;
+    private boolean isAdmin = false;
 
     public boolean login(AuthnReqDTO authDto) {
         String username = null;
@@ -68,6 +70,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
         	int tenantId = getTenantId(tenantDomain);
 	        HttpSession httpSession = getHttpSession();
             String authResponse = authDto.getResponse();
+            isAdmin = authDto.getIsAdmin();
             System.out.println("tenant from ui: "+authDto.getTenant());
             //tenantDomain = (authDto.getTenant() != null ? authDto.getTenant() : tenantDomain );
 
@@ -118,14 +121,14 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
             if (isAuthorized) {
                 UserCoreUtil.setDomainInThreadLocal(null);
                 CarbonAuthenticationUtil.onSuccessAdminLogin(httpSession, username,
-                        tenantId, tenantDomain, "AAC SSO Authentication");
+                        tenantId, tenantDomain, "OAUTH2 SSO Authentication");
                 handleAuthenticationCompleted(tenantId, true);
                 auditResult = OAUTH2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
                 return true;
             } else {
                 log.error("Authentication Request is rejected. Authorization Failure.");
                 CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
-                        "AAC SSO Authentication", "Authorization Failure");
+                        "OAUTH2 SSO Authentication", "Authorization Failure");
                 handleAuthenticationCompleted(tenantId, false);
                 return false;
             }
@@ -374,8 +377,6 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
     private int provisionTenant(String username, String tenantDomain, int tenantId, RealmService realmService, String Object) throws Exception {
     	
     	TenantInfoBean tenantInfoBean = new TenantInfoBean();
-    	String beServerURL = generateURL();
-        TenantServiceClient tenantClient = new TenantServiceClient(beServerURL, "admin", "admin") ;
     	if(tenantId == -1) {
     		tenantInfoBean.setAdmin("admin");
             tenantInfoBean.setFirstname("firstname");
@@ -384,7 +385,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
             tenantInfoBean.setTenantDomain(tenantDomain);
             tenantInfoBean.setEmail(username);
             tenantInfoBean.setCreatedDate(Calendar.getInstance());
-            tenantClient.addTenant(tenantInfoBean);
+            getTenantClient().addTenant(tenantInfoBean);
             tenantId = tenantClient.getTenant(tenantDomain).getTenantId();
     	}
 		return tenantId;
@@ -394,13 +395,22 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
      * 
      */
     private int getTenantId(String tenantDomain) throws Exception {
-    	
-    	String beServerURL = generateURL();
-        TenantServiceClient tenantClient = new TenantServiceClient(beServerURL, "admin", "admin") ;
-    	int tenantId = tenantClient.getTenant(tenantDomain).getTenantId();
+    	int tenantId = getTenantClient().getTenant(tenantDomain).getTenantId();
 		return tenantId;
     }
 
+    /**
+     * Create Tenant Client instance
+     * @return
+     * @throws Exception
+     */
+    private TenantServiceClient getTenantClient() throws Exception {
+    	String beServerURL = generateURL();
+    	if( tenantClient== null) {
+    		tenantClient = new TenantServiceClient(beServerURL, "admin", "admin") ;
+    	}
+    	return tenantClient;
+    }
     /**
      * Obtain the address and port that the server is running on
      */
@@ -418,10 +428,10 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
      * @param username
      * @param realm
      * @param xmlObject
-     * @throws UserStoreException
+     * @throws Exception 
      * @throws AACSSOAuthenticatorException
      */
-    private void provisionUser(String username, UserRealm realm, String aacResp) throws UserStoreException {
+    private void provisionUser(String username, UserRealm realm, String aacResp) throws Exception {
         AuthenticatorsConfiguration authenticatorsConfiguration = AuthenticatorsConfiguration.getInstance();
         AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig =
                 authenticatorsConfiguration.getAuthenticatorConfig(AUTHENTICATOR_NAME);
@@ -454,7 +464,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
                     userstore = realm.getUserStoreManager();
                 }
 
-                String[] newRoles = getRoles(aacResp);
+                String[] newRoles = getRoles();
                 // Load default role if AAC didn't specify roles
                 if (newRoles == null || newRoles.length == 0) {
                     if (configParameters.containsKey(OAUTH2SSOAuthenticatorConstants.PROVISIONING_DEFAULT_ROLE)) {
@@ -513,7 +523,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
                     if (log.isDebugEnabled()) {
                         log.debug("User: " + username + " is updated via AAC authenticator with roles : " + Arrays.toString(newRoles));
                     }
-                } else {                    
+                } else {    
                     userstore.addUser(username, generatePassword(username), addingRoles.toArray(new String[0]), null, null);
                     realm.getAuthorizationManager().authorizeUser(username, "/permission/admin/login", CarbonConstants.UI_PERMISSION_ACTION);
                     if (log.isDebugEnabled()) {
@@ -529,7 +539,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
             if (log.isDebugEnabled()) {
                 log.debug("Cannot find authenticator config for authenticator : " + AUTHENTICATOR_NAME);
             }
-            //throw new AACSSOAuthenticatorException("Cannot find authenticator config for authenticator : " + AUTHENTICATOR_NAME);
+            throw new Exception("Cannot find authenticator config for authenticator : " + AUTHENTICATOR_NAME);
         }
     }
 
@@ -540,7 +550,8 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
      * @return
      */
     private String generatePassword(String username) {
-        return new BigInteger(130, random).toString(32);
+    	String [] user = username.split("@");
+        return user[0];
     }
 
     
@@ -560,9 +571,13 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
      *
      * @return String array of roles
      */
-    private String[] getRoles(String Object) {
-    	//TODO call ROLE API OF AAC
-        String[] arrRoles = {""};
+    private String[] getRoles() {
+    	
+    	String[] arrRoles = new String [1];
+    	arrRoles[0] = "";
+    	if(isAdmin) {
+    		arrRoles[0]= "admin";
+    	}
         return arrRoles;
     }
 }

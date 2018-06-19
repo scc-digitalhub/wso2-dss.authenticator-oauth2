@@ -59,6 +59,7 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
         HttpSession session = request.getSession();
         Object OAUTH2Response =  request.getAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER);
         String tenantDomain = (String) request.getAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES);
+        boolean isAdmin = (boolean)request.getAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN);
         String username = (String) OAUTH2Response;
         ServletContext servletContext = request.getSession().getServletContext();
         ConfigurationContext configContext = (ConfigurationContext) servletContext.getAttribute(
@@ -78,7 +79,7 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             }
             authenticationClient = new OAUTH2SSOAuthenticationClient(
                     configContext, backEndServerURL, cookie, session);
-            isAuthenticated = authenticationClient.login(tenantDomain, username);
+            isAuthenticated = authenticationClient.login(tenantDomain, username, isAdmin);
 
             // add an entry to CarbonSSOSessionManager : IdpSessionIndex --> localSessionId
             if (isAuthenticated) {

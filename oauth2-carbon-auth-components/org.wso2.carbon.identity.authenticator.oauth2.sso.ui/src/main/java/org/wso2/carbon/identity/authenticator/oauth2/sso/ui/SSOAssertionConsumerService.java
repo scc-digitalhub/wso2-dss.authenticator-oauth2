@@ -48,6 +48,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
     private String access_token;
     private String refresh_token;
     private String error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_MALFORMED;
+    private boolean isAdmin = false;
     /**
      *
      */
@@ -189,10 +190,15 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			AACRole role = new AACRole();
 			String roleName,context,prefix,definedContext;
 			String[] temp;
+			boolean isProvider = false;
 			for(int i = 0;i<response.getBody().size();i++) {
 				Map<String,String> entityRow = (Map<String, String>) response.getBody().get(i);
 				roleName = entityRow.get("role");
 				context = entityRow.get("context");
+				isProvider = isProvider(roleName, context);
+				if(isProvider) {
+					isAdmin = isProvider;
+				}
 				prefix = Util.getRolePrefix();
 				definedContext = Util.getRoleContext();
 				if(roleName.startsWith(prefix) && context.equals(definedContext)) {
@@ -208,6 +214,15 @@ public class SSOAssertionConsumerService extends HttpServlet {
     		this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_ROLES_LIST_ERROR;
     		return null;
     	}
+    }
+    
+    private boolean isProvider (String roleName, String context) {
+    	boolean isProvider = false;
+    	String definedContext = Util.getRoleContext();
+    	if(context != null && context.equals(definedContext) && roleName.equals(OAUTH2SSOAuthenticatorConstants.ROLE_PROVIDER)) {
+    		isProvider = true;
+    	}
+    	return isProvider;
     }
     
     /**
@@ -266,6 +281,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, this.access_token);
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
+	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isAdmin);
 	        req.getSession().setAttribute("refresh_token", this.refresh_token);
 	        String sessionIndex = null;
 	        sessionIndex = UUID.randomUUID().toString();

@@ -38,11 +38,12 @@ public class OAUTH2SSOAuthenticationClient {
         }
     }
 
-    public boolean login(String tenant, String username) throws AuthenticationException {
+    public boolean login(String tenant, String username, boolean isAdmin) throws AuthenticationException {
         try {
             AuthnReqDTO authDTO = new AuthnReqDTO();
             authDTO.setResponse(username);
             authDTO.setTenant(tenant);
+            authDTO.setIsAdmin(isAdmin);
             boolean authStatus = stub.login(authDTO);
             setAdminCookie(authStatus);
             //Add an entry to the CarbonSSOSessionManager

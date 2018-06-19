@@ -59,6 +59,7 @@ In the file repository/conf/security/authenticators.xml put the following xml co
 	     <Parameter name="LandingPage">https://localhost:9444/carbon/oauth2-sso-acs/custom_login.jsp</Parameter>
 	     <Parameter name="RedirectURL">https://localhost:9444/oauth2_acs</Parameter>
 	     <Parameter name="UserProvisioningEnabled">true</Parameter>
+	     <Parameter name="TenantProvisioningEnabled">true</Parameter>
 	     <Parameter name="TenantDefault">testdomain.com</Parameter>
 	     <Parameter name="ClientID">YOUR_GOOGLE_CLIENT_ID</Parameter>
 	     <Parameter name="ClientSecret">YOUR_GOOGLE_CLIENT_SECRET</Parameter>
