@@ -1,0 +1,26 @@
+.tenantsTitle {
+	display: block;
+	font-size: 2em;
+	padding: 0.8em;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: rgb(240, 240, 240);
+}
+
+#tenantsForm {
+	padding: 0.8em;
+}
+
+.tenantsElement {
+	margin-top: 0.6em;
+	margin-bottom: 0.6em;
+}
+
+.tenantsImportant {
+	font-weight: bold;
+}
+
+#proceedButton {
+	padding: 0.4em;
+	margin-top: 0.6em;
+}
