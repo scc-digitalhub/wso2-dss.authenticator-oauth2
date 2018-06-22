@@ -5,7 +5,7 @@
 <link href="css/select_tenant.css" type="text/css" rel="stylesheet" />
 
 <div id="tenantsSelection">
-	<span class="tenantsTitle">Select Tenant<br></span>${tenantSelectedURL}
+	<span class="tenantsTitle">Select Tenant<br></span>
 	<form id="tenantsForm" action="${tenantSelectedURL}" method="post">
 		<c:if test="${tenantList == null || tenantList.size() == 0}">
 			<span class="tenantsImportant">Error</span>: no tenants found.

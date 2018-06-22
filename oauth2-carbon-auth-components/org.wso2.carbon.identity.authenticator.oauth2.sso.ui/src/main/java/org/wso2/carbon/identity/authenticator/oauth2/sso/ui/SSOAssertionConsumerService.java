@@ -250,9 +250,13 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        	if(roleProvision) {
 		        		List<AACRole> rolesInfo = handleAPI_ROLES_Request(req, resp, Util.getApiRoleInfoUrl());
 		        		if(rolesInfo != null && rolesInfo.size()>0) {
-		        			tenantDomain = (String) rolesInfo.get(0).getRole();
-		        			//TODO handle custom page to select the desired tenant
-		        		}else {
+		        			if (rolesInfo.size() == 1) { // only 1 tenant available
+		        				tenantDomain = (String) rolesInfo.get(0).getRole();
+		        			} else { // multiple tenants, user needs to choose one
+		        				selectTenant(req, resp, rolesInfo, username); // redirects to tenant selection
+		        				return; // without returning, it would execute the remaining code before the user can select the tenant
+		        			}
+		        		} else {
 		        			this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_ROLE_MISSING_ERROR;
 		        			throw new Exception("NO Role.This service is not enabled for your organization. Please contact the administrator of your organization.");
 		        		}
@@ -314,6 +318,26 @@ public class SSOAssertionConsumerService extends HttpServlet {
         session.setAttribute(OAUTH2SSOAuthenticatorConstants.NOTIFICATIONS_ERROR_MSG, errorMsg);
         resp.sendRedirect(getAdminConsoleURL(req) + "oauth2-sso-acs/notifications.jsp?error="+errorMsg);
         return;
+    }
+    
+    /**
+     * Redirect to tenant selection page.
+     *
+     * @param req				HttpServletRequest
+     * @param resp				HttpServletResponse
+     * @param tenantsList		Contains the list of tenants
+     * @param username			Username
+     * @throws ServletException Error while redirecting
+     * @throws IOException 		Error while redirecting
+     */
+    private void selectTenant(HttpServletRequest req, HttpServletResponse resp, List<AACRole> tenantList, String username) throws ServletException, IOException {
+    	req.getSession().setAttribute("tenantList", tenantList); // list of tenants for current user
+    	req.getSession().setAttribute("tenantSelectedURL", Util.getTenantSelectedUrl()); // URL to redirect to after tenant is selected
+    	req.getSession().setAttribute("tenantUsername", username); // will be needed after the redirect
+    	req.getSession().setAttribute("refresh_token", this.refresh_token);
+    	String url = Util.getSelectTenantUrl();
+    	resp.sendRedirect(url); // redirects to tenant selection page
+    	return;
     }
 
     /**

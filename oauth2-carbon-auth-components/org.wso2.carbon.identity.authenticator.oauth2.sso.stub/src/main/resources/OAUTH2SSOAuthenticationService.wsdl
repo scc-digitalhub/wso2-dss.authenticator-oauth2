@@ -1067,13 +1067,13 @@
     </wsdl:binding>
     <wsdl:service name="OAUTH2SSOAuthenticationService">
         <wsdl:port name="OAUTH2SSOAuthenticationServiceHttpsSoap11Endpoint" binding="ns:OAUTH2SSOAuthenticationServiceSoap11Binding">
-            <soap:address location="https://172.17.0.1:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsSoap11Endpoint/"/>
+            <soap:address location="https://192.168.83.31:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsSoap11Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="OAUTH2SSOAuthenticationServiceHttpsSoap12Endpoint" binding="ns:OAUTH2SSOAuthenticationServiceSoap12Binding">
-            <soap12:address location="https://172.17.0.1:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsSoap12Endpoint/"/>
+            <soap12:address location="https://192.168.83.31:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsSoap12Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="OAUTH2SSOAuthenticationServiceHttpsEndpoint" binding="ns:OAUTH2SSOAuthenticationServiceHttpBinding">
-            <http:address location="https://172.17.0.1:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsEndpoint/"/>
+            <http:address location="https://192.168.83.31:9444/services/OAUTH2SSOAuthenticationService.OAUTH2SSOAuthenticationServiceHttpsEndpoint/"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

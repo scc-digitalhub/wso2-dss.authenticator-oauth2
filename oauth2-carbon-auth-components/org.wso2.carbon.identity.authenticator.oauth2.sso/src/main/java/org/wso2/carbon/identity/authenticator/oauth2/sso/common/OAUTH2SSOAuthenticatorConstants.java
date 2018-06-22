@@ -79,6 +79,8 @@ public final class OAUTH2SSOAuthenticatorConstants {
     public static final String SCOPES_LIST_ROLE_INFO = "ScopesListRoleInfo";
     public static final String USER_NAME_FIELD = "UserNameField";
     public static final String TENANT_DEFAULT = "TenantDefault";
+    public static final String SELECT_TENANT_URL = "SelectTenantURL";
+    public static final String TENANT_SELECTED_URL = "TenantSelectedURL";
     public static final String OAUTH_PROVIDER_NAME = "OauthProviderName";
     
     

@@ -96,6 +96,8 @@ public class Util {
 	private static String scopeListRoleInfo = null;
 	private static String access_token = null;
 	private static String refresh_token = null;
+	private static String selectTenantUrl = null;
+	private static String tenantSelectedUrl = null;
 
     /**
      * Sets the issuerID and IDP SSO Service URL during the server start-up by reading
@@ -131,6 +133,8 @@ public class Util {
 			apiRoleInfoUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.API_ROLE_INFO_URL);
 			scopesListUserInfo = parameters.get(OAUTH2SSOAuthenticatorConstants.SCOPES_LIST_USER_INFO);
 			scopeListRoleInfo = parameters.get(OAUTH2SSOAuthenticatorConstants.SCOPES_LIST_ROLE_INFO);
+			selectTenantUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.SELECT_TENANT_URL);
+			tenantSelectedUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.TENANT_SELECTED_URL);
         		
             initSuccess = true;
         }
@@ -515,8 +519,33 @@ public class Util {
             return parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_CONTEXT);
         }
         return parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_CONTEXT_VALUE);
-    }    
+    }
+    
+    /**
+     * Returns the value of SELECT_TENANT_URL if specified in the authenticators config file
+     *
+     * @return URL of the JSP page for tenant selection
+     */
+    public static String getSelectTenantUrl() {
 
+        if (!initSuccess) {
+            initSSOConfigParams();
+        }
+        return selectTenantUrl;
+    }
+    
+    /**
+     * Returns the value of the TENANT_SELECTED_URL if specified in the authenticators config file
+     *
+     * @return URL to redirect the browser to after tenant has been selected
+     */
+    public static String getTenantSelectedUrl() {
+
+        if (!initSuccess) {
+            initSSOConfigParams();
+        }
+        return tenantSelectedUrl;
+    }
     
     /**
      * Get the username from the AAC Response
