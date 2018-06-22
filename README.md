@@ -109,10 +109,27 @@ In the file repository/conf/security/authenticators.xml put the following xml co
 	     <Parameter name="UserNameField">username</Parameter>
 	     <Parameter name="RolePrefix">YOUUR_ROLE_PREFIX</Parameter>
 	     <Parameter name="RoleContext">YOUR_ROLE_CONTEXT</Parameter>
+	     <Parameter name="SelectTenantURL">https://localhost:9444/carbon/oauth2-sso-acs/select_tenant.jsp</Parameter>
+             <Parameter name="TenantSelectedURL">https://localhost:9444/forwardtenant</Parameter>
+	     <Parameter name="OauthProviderName">AAC</Parameter>
 	  </Config>
     </Authenticator>
 ```
 
+Edit the files `/repository/conf/tomcat/web.xml` and `/repository/conf/tomcat/carbon/WEB-INF/web.xml` by adding the following:
+```bash
+	<!-- Servlet to forward the user after selecting the tenant -->
+	<servlet>
+		<servlet-name>SSOForwardSelectedTenant</servlet-name>
+		<servlet-class>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.SSOForwardSelectedTenant</servlet-class>
+	</servlet>
+
+	<!-- Mapping for the servlet to forward the user after selecting the tenant -->
+	<servlet-mapping>
+		<servlet-name>SSOForwardSelectedTenant</servlet-name>
+		<url-pattern>/forwardtenant</url-pattern>
+	</servlet-mapping>
+```
 
 
 
