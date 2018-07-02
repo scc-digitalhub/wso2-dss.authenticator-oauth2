@@ -42,6 +42,8 @@ public class SSOForwardSelectedTenant extends HttpServlet {
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, req.getSession().getAttribute("refresh_token"));
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
+		    req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
+		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, req.getSession().getAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN));
 		    String sessionIndex = null;
 		    sessionIndex = UUID.randomUUID().toString();
 		    String url = req.getRequestURI();

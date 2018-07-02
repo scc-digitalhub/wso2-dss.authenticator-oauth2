@@ -195,7 +195,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 				Map<String,String> entityRow = (Map<String, String>) response.getBody().get(i);
 				roleName = entityRow.get("role");
 				context = entityRow.get("context");
-				isProvider = isProvider(roleName, context);
+				isProvider = true;//isProvider(roleName, context); // no matter it is provider or not
 				if(isProvider) {
 					isAdmin = isProvider;
 				}
@@ -286,6 +286,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isAdmin);
+	        req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 	        req.getSession().setAttribute("refresh_token", this.refresh_token);
 	        String sessionIndex = null;
 	        sessionIndex = UUID.randomUUID().toString();
@@ -335,6 +336,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
     	req.getSession().setAttribute("tenantSelectedURL", Util.getTenantSelectedUrl()); // URL to redirect to after tenant is selected
     	req.getSession().setAttribute("tenantUsername", username); // will be needed after the redirect
     	req.getSession().setAttribute("refresh_token", this.refresh_token);
+    	req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isAdmin);
     	String url = Util.getSelectTenantUrl();
     	resp.sendRedirect(url); // redirects to tenant selection page
     	return;

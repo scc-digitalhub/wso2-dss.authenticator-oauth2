@@ -73,6 +73,8 @@ public final class OAUTH2SSOAuthenticatorConstants {
     public static final String AUTHORIZATION_URL = "AuthorizationURL";
     public static final String TOKEN_URL = "TokenURL";
     public static final String CHECK_TOKEN_ENDPOINT_URL = "CheckTokenEndpointUrl";
+    public static final String ROLES_OF_TOKEN_URL = "GetRolesOfTokenURL";
+    public static final String APIKEY_CHECK_URL = "ApiKeyCheckURL";
     public static final String API_USER_INFO_URL = "APIUserInfoURL";
     public static final String API_ROLE_INFO_URL = "APIRoleInfoURL";
     public static final String SCOPES_LIST_USER_INFO = "ScopesListUserInfo";

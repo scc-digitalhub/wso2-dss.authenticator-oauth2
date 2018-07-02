@@ -4,8 +4,8 @@ This component provides a set of bundles for the purpose of enabling OAUTH2 auth
 
 # Table of contents
 
-  * [Running](#1-running)
-  * [Configuring OAuth2 providers](#2-configuring-oauth2-providers)
+  * [1. Running](#1-running)
+  * [2. Configuring OAuth2 providers](#2-configuring-oauth2-providers)
     * [2.1 Google OAuth2 provider configurations](#21-google-oauth2-provider-configurations)
       * [2.1.1 Google Developer Console Config](#211-google-developer-console-config)
       * [2.1.2 DSS Config](#212-dss-config)
@@ -104,6 +104,8 @@ In the file repository/conf/security/authenticators.xml put the following xml co
 	     <Parameter name="CheckTokenEndpointUrl">http://localhost:8080/aac/resources/access</Parameter>
 	     <Parameter name="APIUserInfoURL">http://localhost:8080/aac/basicprofile/me</Parameter>
 	     <Parameter name="APIRoleInfoURL">http://localhost:8080/aac/userroles/me</Parameter>
+	     <Parameter name="GetRolesOfTokenURL">http://localhost:8080/aac/userroles/token</Parameter>
+	     <Parameter name="ApiKeyCheckURL">http://localhost:8080/aac/apikeycheck</Parameter>
 	     <Parameter name="ScopesListUserInfo">profile.basicprofile.me profile.accountprofile.me user.roles.me user.roles.read</Parameter>
 	     <Parameter name="ScopesListRoleInfo">user.roles.me user.roles.read</Parameter>
 	     <Parameter name="UserNameField">username</Parameter>
