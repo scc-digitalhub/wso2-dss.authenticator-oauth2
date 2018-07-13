@@ -550,8 +550,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
      * @return
      */
     private String generatePassword(String username) {
-    	String [] user = username.split("@");
-        return user[0];
+        return  new BigInteger(130, random).toString(32);
     }
 
     
