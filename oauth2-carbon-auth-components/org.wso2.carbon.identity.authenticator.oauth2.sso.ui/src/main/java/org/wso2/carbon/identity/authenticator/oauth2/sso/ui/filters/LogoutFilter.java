@@ -44,7 +44,9 @@ public class LogoutFilter implements Filter {
 
         SSOSessionManager ssoManager = SSOSessionManager.getInstance();
         String sessionIndex = (String)((HttpServletRequest) servletRequest).getSession().getAttribute(OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX);
-    	ssoManager.handleLogout(sessionIndex);
+    	if(sessionIndex!= null) {
+    		ssoManager.handleLogout(sessionIndex);
+    	}
     	String landingPage = Util.getLandingPage();
     	((HttpServletResponse) servletResponse).sendRedirect(landingPage);
     }
