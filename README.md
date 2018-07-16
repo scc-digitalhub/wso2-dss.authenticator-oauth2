@@ -134,6 +134,16 @@ Edit the files `/repository/conf/tomcat/web.xml` and `/repository/conf/tomcat/ca
 	</servlet-mapping>
 ```
 
+Edit the file `repository/conf/tomcat/web.xml` by adding the cookie-config tag:
+```bash
+	<session-config>
+		<session-timeout>30</session-timeout>
+		<cookie-config>
+		         <name>JSESSIONID_DSS</name>
+		</cookie-config>
+	</session-config>
+```
+
 
 
 
