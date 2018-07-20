@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>co.innovation.lab</groupId>
+    <artifactId>oauth2-carbon-auth-features</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.feature</artifactId>
+  <packaging>pom</packaging>
+  <name>OAUTH2 based authenticator UI Feature</name>
+  <description>This feature contains the bundles required for OAUTH2 based authentication UI functionality</description>
+
+
+	<dependencies>
+        <dependency>
+            <groupId>co.innovation.lab</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso.ui</artifactId>
+            <version>${custom.authenticator.oauth2}</version>
+        </dependency>
+        <dependency>
+            <groupId>co.innovation.lab</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso</artifactId>
+            <version>${custom.authenticator.oauth2}</version>
+        </dependency>
+        <dependency>
+            <groupId>co.innovation.lab</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso.stub</artifactId>
+            <version>${custom.authenticator.oauth2}</version>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.wso2.maven</groupId>
+                <artifactId>carbon-p2-plugin</artifactId>
+                <version>${carbon.p2.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>4-p2-feature-generation</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>p2-feature-gen</goal>
+                        </goals>
+                        <configuration>
+                            <id>org.wso2.carbon.identity.authenticator.oauth2.sso.ui</id>
+                            <propertiesFile>../etc/feature.properties</propertiesFile>
+                            <adviceFile>
+                                <properties>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:console</propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
+                                </properties>
+                            </adviceFile>
+                            <bundles>
+                                <bundleDef>
+                                    co.innovation.lab:org.wso2.carbon.identity.authenticator.oauth2.sso.ui
+                                </bundleDef>
+                                <bundleDef>
+                                    co.innovation.lab:org.wso2.carbon.identity.authenticator.oauth2.sso.stub
+                                </bundleDef>
+                                <bundleDef>
+                                    co.innovation.lab:org.wso2.carbon.identity.authenticator.oauth2.sso
+                                </bundleDef>
+                            </bundles>
+                            <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:compatible:${carbon.kernel.version}</importFeatureDef>
+                            </importFeatures>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

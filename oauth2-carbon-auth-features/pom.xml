@@ -9,4 +9,15 @@
   <name>Custom OAUTH2 Authorization Features</name>
   <description>Custom OAUTH2 Authorization Features</description>
   <packaging>pom</packaging>
+  <modules>
+  	<module>
+  		org.wso2.carbon.identity.authenticator.oauth2.sso.server.feature
+  	</module>
+  	<module>
+  		org.wso2.carbon.identity.authenticator.oauth2.sso.ui.feature
+  	</module>
+  	<module>
+  		org.wso2.carbon.identity.authenticator.oauth2.sso.feature
+  	</module>
+  </modules>
 </project>

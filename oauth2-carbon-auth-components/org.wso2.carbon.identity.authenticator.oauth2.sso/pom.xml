@@ -60,7 +60,7 @@
 		<dependency>
             <groupId>org.wso2.carbon.multitenancy</groupId>
             <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
-            <version>4.6.12-SNAPSHOT</version>
+            <version>4.6.13</version>
         </dependency>
         <dependency>
 			<groupId>org.springframework.ws.wso2</groupId>
