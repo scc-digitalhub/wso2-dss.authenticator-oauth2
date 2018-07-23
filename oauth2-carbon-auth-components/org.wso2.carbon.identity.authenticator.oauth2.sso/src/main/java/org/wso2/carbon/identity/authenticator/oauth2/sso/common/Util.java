@@ -153,7 +153,11 @@ public class Util {
         AuthenticatorsConfiguration.AuthenticatorConfig authenticatorConfig = authenticatorsConfiguration
                 .getAuthenticatorConfig(OAUTH2SSOAuthenticatorConstants.AUTHENTICATOR_NAME);
         // if the authenticator is disabled, then do not register the servlet filter.
-        return !authenticatorConfig.isDisabled();
+        boolean isEnabled = false;
+        if(authenticatorConfig != null && !authenticatorConfig.isDisabled()) {
+        	isEnabled = true;
+        }
+        return isEnabled;
     }
 
     /**

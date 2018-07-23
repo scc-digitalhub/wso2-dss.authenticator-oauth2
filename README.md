@@ -115,6 +115,7 @@ In the file repository/conf/security/authenticators.xml put the following xml co
 	     <Parameter name="SelectTenantURL">https://localhost:9444/carbon/oauth2-sso-acs/select_tenant.jsp</Parameter>
              <Parameter name="TenantSelectedURL">https://localhost:9444/forwardtenant</Parameter>
 	     <Parameter name="OauthProviderName">AAC</Parameter>
+	     <Parameter name="SecurityFilterClass">org.wso2.carbon.dataservices.core.security.filter.ServicesSecurityFilter</Parameter>
 	  </Config>
     </Authenticator>
 ```
