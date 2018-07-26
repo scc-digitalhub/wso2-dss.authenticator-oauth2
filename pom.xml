@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>co.innovation.lab</groupId>
   <artifactId>org.wso2.carbon.identity.authenticator.oauth2</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Custom Authenticator with OAUTH2</name>
   <description>Custom Authenticator with OAUTH2</description>
@@ -88,8 +88,9 @@
         </pluginRepository>
     </pluginRepositories>
     
+	
     <properties>
-        <custom.authenticator.oauth2>1.0.0</custom.authenticator.oauth2>
+        <custom.authenticator.oauth2>1.0.0-SNAPSHOT</custom.authenticator.oauth2>
         <wss4j.version>1.5.11.wso2v15</wss4j.version>
         <wss4j.xml.security.imp.pkg.version.range>[1.4.2.patched,2.0.0)</wss4j.xml.security.imp.pkg.version.range>
         <wss4j.ws.security.imp.pkg.version.range>[1.5.11,2.0.0)</wss4j.ws.security.imp.pkg.version.range>

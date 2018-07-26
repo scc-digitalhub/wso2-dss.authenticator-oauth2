@@ -3,7 +3,7 @@
   <parent>
     <groupId>co.innovation.lab</groupId>
     <artifactId>oauth2-carbon-auth-features</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.feature</artifactId>
   <packaging>pom</packaging>

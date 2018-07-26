@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>co.innovation.lab</groupId>
 		<artifactId>oauth2-carbon-auth-components</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso.ui</artifactId>
@@ -21,12 +21,12 @@
 		<dependency>
 			<groupId>co.innovation.lab</groupId>
 			<artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>co.innovation.lab</groupId>
 			<artifactId>org.wso2.carbon.identity.authenticator.oauth2.sso.stub</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.wso2.carbon</groupId>
