@@ -28,7 +28,6 @@ public final class OAUTH2SSOAuthenticatorConstants {
     public static final String LOGGED_IN_USER = "loggedInUser";
     public static final String HTTP_POST_PARAM_OAUTH2_ROLES = "Roles";
     public static final String IS_ADMIN = "isAdmin";
-    public static final String ROLE_PROVIDER = "ROLE_PROVIDER";
 
     public static final String IDP_SESSION_INDEX = "idpSessionIndex";
 
@@ -88,10 +87,11 @@ public final class OAUTH2SSOAuthenticatorConstants {
     
     
     //AAC parameters
-    public static final String ROLE_PREFIX = "RolePrefix";
+    public static final String ROLE_SPACE = "RoleSpace";
     public static final String ROLE_CONTEXT= "RoleContext";
-    public static final String ROLE_PREFIX_VALUE = "dss_"; 
-    public static final String ROLE_CONTEXT_VALUE = "co.innovationlab";
+    public static final String ROLE_SPACE_VALUE = "dss.com"; 
+    public static final String ROLE_CONTEXT_VALUE = "components/dss.super";
+    public static final String ROLE_PROVIDER = "ROLE_PROVIDER";
 
     public static final class ErrorMessageConstants {
         private ErrorMessageConstants(){

@@ -6,6 +6,7 @@ public class AACRole {
 	private String scope;
 	private String role;
 	private String context;
+	private String space;
 	private String authority;
 	private static final String PROVIDER = "ROLE_PROVIDER";
 	private static final String USER = "ROLE_USER";
@@ -30,6 +31,12 @@ public class AACRole {
 	}
 	public void setRole(String role) {
 		this.role = role;
+	}
+	public String getSpace() {
+		return space;
+	}
+	public void setSpace(String space) {
+		this.space = space;
 	}
 	public String getContext() {
 		return context;

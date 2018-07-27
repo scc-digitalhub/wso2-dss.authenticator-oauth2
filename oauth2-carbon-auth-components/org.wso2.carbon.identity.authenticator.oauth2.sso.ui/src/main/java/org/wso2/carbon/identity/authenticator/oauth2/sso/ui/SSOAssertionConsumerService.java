@@ -71,6 +71,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
         String auth_code = req.getParameter(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_AUTH_CODE);
         String state_code = req.getParameter(OAUTH2SSOAuthenticatorConstants.OAUTH2_AUTH_CODE_STATE);
         String state_code_session = (String) req.getSession().getAttribute(OAUTH2SSOAuthenticatorConstants.OAUTH2_AUTH_CODE_STATE);
+        this.isAdmin = false;
         
         log.info("authorization_code: "+auth_code+" state: "+state_code_session);
         if (log.isDebugEnabled()) { 
@@ -188,27 +189,29 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			ResponseEntity<ArrayList> response = restTemplate.exchange(urlApi, HttpMethod.GET, httpEntity, ArrayList.class);
 			System.out.println("response of ROLES API request :  "+response.getBody());
 			AACRole role = new AACRole();
-			String roleName,context,prefix,definedContext;
-			String[] temp;
-			boolean isProvider = false;
+			String roleName,context,space,definedContext;
+			definedContext = Util.getRoleContext();
+			List<String> tenantList = new ArrayList<String>();
 			for(int i = 0;i<response.getBody().size();i++) {
 				Map<String,String> entityRow = (Map<String, String>) response.getBody().get(i);
 				roleName = entityRow.get("role");
 				context = entityRow.get("context");
-				isProvider = true;//isProvider(roleName, context); // no matter it is provider or not
-				if(isProvider) {
-					isAdmin = isProvider;
-				}
-				prefix = Util.getRolePrefix();
-				definedContext = Util.getRoleContext();
-				if(roleName.startsWith(prefix) && context.equals(definedContext)) {
+				space = entityRow.get("space");
+				System.out.println("currentRoleName: "+roleName+ " currentContext: "+context+" currentSpace: "+space+" definedContext"+definedContext);
+				if(context!= null && space!= null && context.equals(definedContext) 
+						&& !tenantList.contains(space)) {
 					role = new AACRole();
 					role.setContext(context);
-					temp = roleName.split(prefix);
-					role.setRole(temp[1]);
+					role.setRole(roleName);
+					role.setSpace(space);
 					rolesList.add(role);
+					tenantList.add(space);
+					boolean isProvider = Util.isProvider(roleName, context);
+					if(isProvider) {
+						this.isAdmin = isProvider;
+					}
 				}
-			}       
+			}  
 	    	return rolesList;
     	}catch(Exception e) {
     		this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_ROLES_LIST_ERROR;
@@ -216,14 +219,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
     	}
     }
     
-    private boolean isProvider (String roleName, String context) {
-    	boolean isProvider = false;
-    	String definedContext = Util.getRoleContext();
-    	if(context != null && context.equals(definedContext) && roleName.equals(OAUTH2SSOAuthenticatorConstants.ROLE_PROVIDER)) {
-    		isProvider = true;
-    	}
-    	return isProvider;
-    }
     
     /**
      * Handle OAUTH2 Responses and authenticate.
@@ -251,7 +246,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        		List<AACRole> rolesInfo = handleAPI_ROLES_Request(req, resp, Util.getApiRoleInfoUrl());
 		        		if(rolesInfo != null && rolesInfo.size()>0) {
 		        			if (rolesInfo.size() == 1) { // only 1 tenant available
-		        				tenantDomain = (String) rolesInfo.get(0).getRole();
+		        				tenantDomain = (String) rolesInfo.get(0).getSpace();
 		        			} else { // multiple tenants, user needs to choose one
 		        				selectTenant(req, resp, rolesInfo, username); // redirects to tenant selection
 		        				return; // without returning, it would execute the remaining code before the user can select the tenant
@@ -262,7 +257,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        		}
 		        	}
 		        	if(!username.contains("@")) { 
-		        		username = username+"@"+tenantContext+"@"+tenantDomain;
+		        		username = username+"@"+tenantContext+".super@"+tenantDomain;
 		        	}else {
 		        		username = username+"@"+tenantDomain;
 		        	}
@@ -285,7 +280,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, this.access_token);
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
-	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isAdmin);
+	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, this.isAdmin);
 	        req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 	        req.getSession().setAttribute("refresh_token", this.refresh_token);
 	        String sessionIndex = null;

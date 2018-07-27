@@ -497,15 +497,15 @@ public class Util {
      *
      * @return Name of the login attribute
      */
-    public static String getRolePrefix() {
+    public static String getRoleSpace() {
 
         if (!initSuccess) {
             initSSOConfigParams();
         }
-        if (parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_PREFIX) != null) {
-            return parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_PREFIX);
+        if (parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_SPACE) != null) {
+            return parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_SPACE);
         }
-        return parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_PREFIX_VALUE);
+        return parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_SPACE_VALUE);
     }
     
     /**
@@ -549,6 +549,16 @@ public class Util {
             initSSOConfigParams();
         }
         return tenantSelectedUrl;
+    }
+    
+    public static boolean isProvider (String roleName, String context) {
+    	boolean isProvider = false;
+    	String definedContext = Util.getRoleContext();
+    	if(context != null && context.equals(definedContext) 
+    			&& roleName.equals(OAUTH2SSOAuthenticatorConstants.ROLE_PROVIDER)) {
+    		isProvider = true;
+    	}
+    	return isProvider;
     }
     
     /**

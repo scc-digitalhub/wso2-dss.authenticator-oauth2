@@ -30,19 +30,20 @@ public class SSOForwardSelectedTenant extends HttpServlet {
 			throw new IOException("The selected tenant is null.");
 		}
 
-		if(!username.contains("@")) { 
-    		username = username+"@"+tenantContext+"@"+tenantDomain;
-    	}else {
-    		username = username+"@"+tenantDomain;
-    	}
-
 		if(username != null) {
 			// Set the OAUTH2 access_token as a HTTP Attribute
-		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, req.getSession().getAttribute("refresh_token"));
+		    boolean isProvider = (boolean)(req.getSession().getAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN));
+			req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isProvider);
+			//if(isProvider)  tenantDomain = tenantDomain+".super";
+			if(!username.contains("@")) { 
+	    		username = username+"@"+tenantContext+".super@"+tenantDomain;
+	    	}else {
+	    		username = username+"@"+tenantDomain;
+	    	}
+			req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, req.getSession().getAttribute("refresh_token"));
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
 		    req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
-		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, req.getSession().getAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN));
 		    String sessionIndex = null;
 		    sessionIndex = UUID.randomUUID().toString();
 		    String url = req.getRequestURI();

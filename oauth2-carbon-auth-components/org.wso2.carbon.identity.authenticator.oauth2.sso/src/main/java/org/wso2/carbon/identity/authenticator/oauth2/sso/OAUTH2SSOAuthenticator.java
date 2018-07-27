@@ -71,7 +71,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
 	        HttpSession httpSession = getHttpSession();
             String authResponse = authDto.getResponse();
             isAdmin = authDto.getIsAdmin();
-            System.out.println("tenant from ui: "+authDto.getTenant());
+            System.out.println("tenant from ui: "+authDto.getTenant()+" isAdmin: "+isAdmin);
             //tenantDomain = (authDto.getTenant() != null ? authDto.getTenant() : tenantDomain );
 
             username = authResponse;
@@ -95,8 +95,14 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
 	            System.out.println("tenant preparation: "+tenantDomain+" "+tenantId);
 	            String user = MultitenantUtils.getTenantAwareUsername(username);
 	            tenantId = provisionTenant(user, tenantDomain, tenantId, realmService, authResponse);
+	            if(tenantId == -1) { // Tenant can not be created if the role is not provider
+	            	log.error("Authentication Request is rejected. " +
+	                        "The domain has not yet been creted by the provider.");
+	                CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, "", -1,
+	                        "AAC SSO Authentication", "The domain has not yet been creted by the provider.");
+	                return false;
+	            }
             }
-            
             boolean isSignatureValid = false;
             handleAuthenticationStarted(tenantId);
 
@@ -377,7 +383,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
     private int provisionTenant(String username, String tenantDomain, int tenantId, RealmService realmService, String Object) throws Exception {
     	
     	TenantInfoBean tenantInfoBean = new TenantInfoBean();
-    	if(tenantId == -1) {
+    	if(tenantId == -1 && isAdmin) {
     		tenantInfoBean.setAdmin("admin");
             tenantInfoBean.setFirstname("firstname");
             tenantInfoBean.setLastname("lastname");
