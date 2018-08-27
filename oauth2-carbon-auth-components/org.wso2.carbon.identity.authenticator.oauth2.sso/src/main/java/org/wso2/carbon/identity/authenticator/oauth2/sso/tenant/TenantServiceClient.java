@@ -19,8 +19,7 @@ public class TenantServiceClient {
 
     public TenantServiceClient(String backendServerURL, String username, String password) throws Exception {
 
-        String epr = backendServerURL + "/services/" + "TenantMgtAdminService";
-
+        String epr = backendServerURL  + "TenantMgtAdminService";
         try { 
         	stub = new TenantMgtAdminServiceStub(epr);
     	    CarbonUtils.setBasicAccessSecurityHeaders(username, password, true, stub._getServiceClient());
@@ -39,7 +38,7 @@ public class TenantServiceClient {
             throw new Exception(msg, axisFault);
         }
     }
-
+    
     public void addTenant(TenantInfoBean tenantInfoBean) throws Exception {
         stub.addTenant(tenantInfoBean);
     }
@@ -49,7 +48,12 @@ public class TenantServiceClient {
     }
     
     public TenantInfoBean getTenant(String domainName) throws Exception {
-        return stub.getTenant(domainName);
+        try{
+        	return stub.getTenant(domainName);
+        }catch(Exception e ) {
+        	log.info("Problem inside getTenant:  " + e.getMessage());
+        	return null;
+        }
     }
 
     public void updateTenant(TenantInfoBean tenantInfoBean) throws Exception {

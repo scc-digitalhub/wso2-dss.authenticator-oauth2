@@ -206,10 +206,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
 					role.setSpace(space);
 					rolesList.add(role);
 					tenantList.add(space);
-					boolean isProvider = Util.isProvider(roleName, context);
-					if(isProvider) {
-						this.isAdmin = isProvider;
-					}
 				}
 			}  
 	    	return rolesList;
@@ -247,6 +243,12 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        		if(rolesInfo != null && rolesInfo.size()>0) {
 		        			if (rolesInfo.size() == 1) { // only 1 tenant available
 		        				tenantDomain = (String) rolesInfo.get(0).getSpace();
+		        				String tenantRole = (String) rolesInfo.get(0).getRole();
+		        				String context = (String) rolesInfo.get(0).getContext();
+		        				boolean isProvider = Util.isProvider(tenantRole, context);
+		    					if(isProvider) {
+		    						this.isAdmin = isProvider;
+		    					}
 		        			} else { // multiple tenants, user needs to choose one
 		        				selectTenant(req, resp, rolesInfo, username); // redirects to tenant selection
 		        				return; // without returning, it would execute the remaining code before the user can select the tenant
@@ -331,7 +333,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
     	req.getSession().setAttribute("tenantSelectedURL", Util.getTenantSelectedUrl()); // URL to redirect to after tenant is selected
     	req.getSession().setAttribute("tenantUsername", username); // will be needed after the redirect
     	req.getSession().setAttribute("refresh_token", this.refresh_token);
-    	req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isAdmin);
     	String url = Util.getSelectTenantUrl();
     	resp.sendRedirect(url); // redirects to tenant selection page
     	return;
@@ -343,8 +344,9 @@ public class SSOAssertionConsumerService extends HttpServlet {
      * @param request httpServletReq that hits the ACS Servlet
      * @return Admin Console URL       https://10.100.1.221:8443/acs/carbon/
      */
-    private String getAdminConsoleURL(HttpServletRequest request) {
+    public static String getAdminConsoleURL(HttpServletRequest request) {
         String url = CarbonUIUtil.getAdminConsoleURL(request);
+        log.info("adminnnnn console: "+url);
         if (!url.endsWith("/")) {
             url = url + "/";
         }

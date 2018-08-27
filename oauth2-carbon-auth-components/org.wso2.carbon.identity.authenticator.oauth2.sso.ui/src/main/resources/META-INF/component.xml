@@ -11,6 +11,7 @@
                 <skip-link>/carbon/oauth2-sso-acs/authFailure.jsp</skip-link>
                 <skip-link>../oauth2-sso-acs/select_tenant.jsp</skip-link>
                 <skip-link>/oauth2_acs</skip-link>
+                <skip-link>/forwardtenant</skip-link>
             </skip-authentication>
         </menu>
     </menus>
@@ -21,6 +22,12 @@
 			<url-pattern>/oauth2_acs</url-pattern>
 			<display-name>OAUTH2 SSO Consumer Servlet</display-name>
 			<servlet-class>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.SSOAssertionConsumerService</servlet-class>
+		</servlet>
+		<servlet id="OAUTH2SSOAssertionConsumerServiceTenant">
+			<servlet-name>OAUTH2SSOAssertionConsumerServiceTenant</servlet-name>
+			<url-pattern>/forwardtenant</url-pattern>
+			<display-name>OAUTH2 SSO Consumer Servlet for MultiTenant</display-name>
+			<servlet-class>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.SSOForwardSelectedTenant</servlet-class>
 		</servlet>
 	</servlets>
 	

@@ -77,6 +77,7 @@ public final class OAUTH2SSOAuthenticatorConstants {
     public static final String API_USER_INFO_URL = "APIUserInfoURL";
     public static final String API_ROLE_INFO_URL = "APIRoleInfoURL";
     public static final String MAX_EXPIRE_SEC_TOKEN = "MaxExpireSecToken";
+    public static final String MAX_EXPIRE_SEC_TOKEN_VALUE= "86400";
     public static final String SCOPES_LIST_USER_INFO = "ScopesListUserInfo";
     public static final String SCOPES_LIST_ROLE_INFO = "ScopesListRoleInfo";
     public static final String USER_NAME_FIELD = "UserNameField";

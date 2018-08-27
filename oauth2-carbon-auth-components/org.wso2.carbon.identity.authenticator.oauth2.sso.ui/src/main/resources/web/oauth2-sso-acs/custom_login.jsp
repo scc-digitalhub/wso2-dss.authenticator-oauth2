@@ -105,6 +105,7 @@ String urlAuth = Util.getAuthorizationUrl() + "?"
     <%
         }
         String backendURL = CharacterEncoder.getSafeText(CarbonUIUtil.getServerURL(config.getServletContext(), session));
+        request.getSession().setAttribute("backendURL", backendURL);
     %>
      <script type="text/javascript">
     	function getSafeText(text){
@@ -190,19 +191,7 @@ String urlAuth = Util.getAuthorizationUrl() + "?"
 
                         <form action='../admin/login_action.jsp' method="POST" onsubmit="return doValidation();" target="_self" onsubmit="checkInputs()">
                             <table>
-                                 <%if(!CarbonUtils.isRunningOnLocalTransportMode()) { %>
-                                <tr>
-                                    <td>
-                                        <nobr><label for="txtUserName"><fmt:message
-                                                key="backendURL"/></label></nobr>
-                                    </td>
-                                    <td>
-                                        <input type="text" id="txtbackendURL" name="backendURL"
-                                               class="user" tabindex="1" value="<%=backendURL%>"/>
-                                    </td>
-                                </tr>
-                                <% } %>
-                                <tr>
+                                 <tr>
                                     <td>
                                         <label for="txtUserName"><fmt:message
                                                 key="username"/></label>

@@ -8,25 +8,31 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
+import org.wso2.carbon.core.services.util.CarbonAuthenticationUtil;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.ui.client.OAUTH2SSOAuthenticationClient;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.ui.internal.OAUTH2SSOAuthFEDataHolder;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.ui.session.SSOSessionManager;
-
+import org.wso2.carbon.tenant.mgt.stub.beans.xsd.TenantInfoBean;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.OAUTH2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.Util;
-
+import org.wso2.carbon.identity.authenticator.oauth2.sso.tenant.TenantServiceClient;
 import org.wso2.carbon.ui.AbstractCarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonUIUtil;
+import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Calendar;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -34,9 +40,13 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
 
     public static final Log log = LogFactory.getLog(OAUTH2SSOUIAuthenticator.class);
     private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
-
+    private TenantServiceClient tenantClient;
     private static final int DEFAULT_PRIORITY_LEVEL = 50;
     private static final String AUTHENTICATOR_NAME = "OAUTH2SSOUIAuthenticator";
+    private OAUTH2SSOAuthFEDataHolder dataHolder = OAUTH2SSOAuthFEDataHolder.getInstance();
+    private boolean isAdmin = false;
+    private SecureRandom random = new SecureRandom();
+    String backEndServerURL;
 
     public boolean canHandle(HttpServletRequest request) {
         Object OAUTH2CodeState = request.getParameter(OAUTH2SSOAuthenticatorConstants.OAUTH2_AUTH_CODE_STATE);
@@ -57,18 +67,20 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
         regenerateSession(request);
 
         HttpSession session = request.getSession();
+        ServletContext servletContext = request.getSession().getServletContext();
         Object OAUTH2Response =  request.getAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER);
         String tenantDomain = (String) request.getAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES);
-        boolean isAdmin = (boolean)request.getAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN);
+        isAdmin = (boolean)request.getAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN);
         String username = (String) OAUTH2Response;
-        ServletContext servletContext = request.getSession().getServletContext();
-        ConfigurationContext configContext = (ConfigurationContext) servletContext.getAttribute(
-                CarbonConstants.CONFIGURATION_CONTEXT);
-        String backEndServerURL = request.getParameter("backendURL");
+        backEndServerURL = request.getParameter("backendURL");
         if (backEndServerURL == null) {
             backEndServerURL = CarbonUIUtil.getServerURL(servletContext, session);
         }
-        session.setAttribute(CarbonConstants.SERVER_URL, backEndServerURL);
+        request.getSession().setAttribute(CarbonConstants.SERVER_URL, backEndServerURL);
+        servletContext = request.getSession().getServletContext();
+        ConfigurationContext configContext = (ConfigurationContext) servletContext.getAttribute(
+                CarbonConstants.CONFIGURATION_CONTEXT);
+        
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN);
 
         // authorize the user with the back-end
@@ -77,8 +89,13 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             if (log.isDebugEnabled()) {
                 log.debug("Invoking the OAUTH2 SSO Authenticator BE for the Response : " + tenantDomain);
             }
+            
+            boolean checkTenant = handleTenant(username,request.getSession());
+//            if(!checkTenant) {
+//            	throw new Exception("The domain has not yet been created by the provider");
+//            }
             authenticationClient = new OAUTH2SSOAuthenticationClient(
-                    configContext, backEndServerURL, cookie, session);
+                    configContext, backEndServerURL, cookie, request.getSession());
             isAuthenticated = authenticationClient.login(tenantDomain, username, isAdmin);
 
             // add an entry to CarbonSSOSessionManager : IdpSessionIndex --> localSessionId
@@ -214,26 +231,99 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
         return false;
     }
 
+    private boolean handleTenant(String username, HttpSession httpSession) throws Exception {
+    	int tenantId = 0;
+    	 String tenantDomain = Util.getTenantDefault(); // It is supposed that this tenant already exists
+    	 boolean tenantProvision = Boolean.parseBoolean(Util.getTenantProvisioningEnabled());
+         tenantDomain = MultitenantUtils.getTenantDomain(username);
+         if(tenantProvision) {
+	            tenantDomain = MultitenantUtils.getTenantDomain(username);
+	            tenantId = getTenantId(tenantDomain);
+	            log.info("tenant preparation: "+tenantDomain+" "+tenantId);
+	            String user = MultitenantUtils.getTenantAwareUsername(username);
+	            tenantId = provisionTenant(user, tenantDomain, tenantId);
+	            if(tenantId == 0) { // Tenant can not be created if the role is not provider
+	            	CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, "", -1,
+	                        "AAC SSO Authentication:The domain has not yet been creted by the provider.", "The domain has not yet been creted by the provider.");
+	                return false;
+	            }
+         }
+         return true;
+    }
+    
     /**
-     * Get the username from the OAUTH2 Response
+     * Provision/Create tenant on the server(SP) 
      *
-     * @param response OAUTH2 Response
-     * @return username username contained in the OAUTH2 Response
+     * @param username
+     * @param realm
+     * @param xmlObject
+     * @throws org.wso2.carbon.user.api.UserStoreException 
+     * @throws Exception 
+     * @throws AACSSOAuthenticatorException
      */
-    private String getUsernameFromResponse(Object response) {
-//        List<Assertion> assertions = response.getAssertions();
-//        Assertion assertion = null;
-//        if (assertions != null && assertions.size() > 0) {
-//            // There can be only one assertion in a OAUTH2 Response, so get the first one
-//            assertion = assertions.get(0);
-//            return assertion.getSubject().getNameID().getValue();
-//        }
-    	return "test_user";
+    private int provisionTenant(String username, String tenantDomain, int tenantId) throws Exception {
+    	try {
+	    	TenantInfoBean tenantInfoBean = new TenantInfoBean();
+	    	if(tenantId == 0 && isAdmin) {
+	    		tenantInfoBean.setAdmin("admin");
+	            tenantInfoBean.setFirstname("firstname");
+	            tenantInfoBean.setLastname("lastname");
+	            tenantInfoBean.setAdminPassword(generatePassword());
+	            tenantInfoBean.setTenantDomain(tenantDomain);
+	            tenantInfoBean.setEmail(username);
+	            tenantInfoBean.setCreatedDate(Calendar.getInstance());
+	            getTenantClient().addTenant(tenantInfoBean);
+	            tenantId = tenantClient.getTenant(tenantDomain).getTenantId();
+	    	}
+			return tenantId;
+    	}catch(Exception e) {
+    		log.info("Error provisioning tenant: " + e.getMessage());
+    		return 0;
+    	}
+    }
+    
+    /**
+     * 
+     */
+    private int getTenantId(String tenantDomain) throws Exception {
+       int tenantId = getTenantClient().getTenant(tenantDomain).getTenantId();
+               return tenantId;
     }
 
+    
     /**
-     * Read the session index from a Response
+     * Create Tenant Client instance
+     * @return
+     * @throws Exception
+     */
+    private TenantServiceClient getTenantClient() throws Exception {
+    	try {
+	    	log.info("backend URL: "+backEndServerURL);
+	    	if( tenantClient== null) {
+	    		RealmService realmService = dataHolder.getRealmService();
+	            RealmConfiguration realmConfig = realmService.getBootstrapRealmConfiguration();
+	            String adminUser = realmConfig.getAdminUserName();
+	            String adminPassw = realmConfig.getAdminPassword();
+	    		tenantClient = new TenantServiceClient(backEndServerURL, adminUser, adminPassw) ;
+	    	}
+	    	return tenantClient;
+    	}catch(Exception e) {
+    		log.info("Problem inside getTenantClient:  " + e.getMessage());
+    		return tenantClient;
+    	}
+    	
+    }
+    /**
+     * Generates (random) password for user to be provisioned
      *
+     * @param username
+     * @return
+     */
+    private String generatePassword() {
+        return  new BigInteger(130, random).toString(32);
+    }
+        /**
+     * Read the session index from a Response
      * @param response OAUTH2 Response
      * @return Session Index value contained in the Response
      */

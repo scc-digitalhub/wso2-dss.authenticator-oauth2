@@ -6,6 +6,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.stub.OAUTH2SSOAuthenticationServiceStub;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.stub.types.AuthnReqDTO;

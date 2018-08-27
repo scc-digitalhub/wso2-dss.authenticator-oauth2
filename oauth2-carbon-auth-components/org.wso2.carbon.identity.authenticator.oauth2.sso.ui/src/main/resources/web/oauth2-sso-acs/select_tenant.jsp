@@ -15,8 +15,9 @@
 			<c:if test="${tenantList != null && tenantList.size() >= 1}">
 				<span class="tenantsImportant">Multiple tenants available</span> for this user. Please select the one you wish to sign in with.<br>
 				<c:forEach items="${tenantList}" var="tenant">
-					<input class="tenantsElement" type="radio" name="tenantRadio" value="${tenant.getSpace()}">${tenant.getSpace()}<br>
+					<input class="tenantsElement" type="radio" name="tenantRadio" value="${tenant.getSpace()}" onClick="setRole('${tenant.getRole()}')">${tenant.getSpace()}<br>
 				</c:forEach>
+				<input type="hidden" name="selectedRole"/>
 				<button type="submit" id="proceedButton" disabled="disabled">Proceed</button>
 			</c:if>
 		</form>
