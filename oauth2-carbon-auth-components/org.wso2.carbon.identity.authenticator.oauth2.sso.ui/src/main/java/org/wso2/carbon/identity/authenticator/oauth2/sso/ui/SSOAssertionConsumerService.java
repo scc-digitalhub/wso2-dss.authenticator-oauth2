@@ -19,10 +19,11 @@ import org.wso2.carbon.identity.authenticator.oauth2.sso.common.AACRole;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.AuthorizationToken;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.OAUTH2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.Util;
-
+import org.wso2.carbon.identity.authenticator.oauth2.sso.tenant.TenantProvision;
 import org.wso2.carbon.ui.CarbonSecuredHttpContext;
 import org.wso2.carbon.ui.CarbonUIUtil;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -49,6 +50,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
     private String refresh_token;
     private String error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_MALFORMED;
     private boolean isAdmin = false;
+    private String backEndServerURL;
+    private String username;
     /**
      *
      */
@@ -93,14 +96,14 @@ public class SSOAssertionConsumerService extends HttpServlet {
         // If OAUTH2 Response is not present in the redirected req, send the user to an error page.
         if (auth_code == null || !state_code.equals(state_code_session)) {
             log.error("authorization_code or state doesn't match.");
-            handleMalformedResponses(req, resp, OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_NOT_PRESENT);
+            Util.handleMalformedResponses(req, resp, OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_NOT_PRESENT);
             return;
         }
         try {
             handleOAUTH2Responses(req, resp, auth_code);
         } catch (Exception e) {
             log.error("Error when processing the OAUTH2 Assertion in the request.", e);
-            handleMalformedResponses(req, resp, this.error_reason);
+            Util.handleMalformedResponses(req, resp, this.error_reason);
         }
     }
     
@@ -296,28 +299,28 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        if(log.isDebugEnabled()) {
 	            log.debug("Forwarding to path : " + url);
 	        }
-	        RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
-	        req.getSession().setAttribute("CarbonAuthenticator", new OAUTH2SSOUIAuthenticator());
-	        reqDispatcher.forward(req, resp);
+	        try {
+		        backEndServerURL = req.getParameter("backendURL");
+		    	HttpSession session = req.getSession();
+		    	ServletContext servletContext = session.getServletContext();
+		        if (backEndServerURL == null) {
+		            backEndServerURL = CarbonUIUtil.getServerURL(servletContext, session);
+		        }
+		        TenantProvision tenantProvision = new TenantProvision();
+		        tenantProvision.setBackEndURL(backEndServerURL);
+		        boolean checkTenant = tenantProvision.handleTenant(username,session);
+		    	if(checkTenant) {
+		    		RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
+				    req.getSession().setAttribute("CarbonAuthenticator", new OAUTH2SSOUIAuthenticator());
+		    		reqDispatcher.forward(req, resp);
+		        }else {
+		        	Util.handleMalformedResponses(req, resp, tenantProvision.getTenantError());
+		        }
+		    }catch(Exception e) {
+		    	Util.handleMalformedResponses(req, resp, OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_NO_DOMAIN_CREATED_BY_PROVIDER_ERROR);
+		    }
         }
-    }
-
-    /**
-     * Handle malformed Responses.
-     *
-     * @param req      HttpServletRequest
-     * @param resp     HttpServletResponse
-     * @param errorMsg Error message to be displayed in HttpServletResponse.jsp
-     * @throws IOException Error when redirecting
-     */
-    private void handleMalformedResponses(HttpServletRequest req, HttpServletResponse resp,
-                                          String errorMsg) throws IOException {
-        HttpSession session = req.getSession();
-        session.setAttribute(OAUTH2SSOAuthenticatorConstants.NOTIFICATIONS_ERROR_MSG, errorMsg);
-        resp.sendRedirect(getAdminConsoleURL(req) + "oauth2-sso-acs/notifications.jsp?error="+errorMsg);
-        return;
-    }
-    
+    }  
     /**
      * Redirect to tenant selection page.
      *
@@ -337,24 +340,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
     	resp.sendRedirect(url); // redirects to tenant selection page
     	return;
     }
-
-    /**
-     * Get the admin console url from the request.
-     *
-     * @param request httpServletReq that hits the ACS Servlet
-     * @return Admin Console URL       https://10.100.1.221:8443/acs/carbon/
-     */
-    public static String getAdminConsoleURL(HttpServletRequest request) {
-        String url = CarbonUIUtil.getAdminConsoleURL(request);
-        log.info("adminnnnn console: "+url);
-        if (!url.endsWith("/")) {
-            url = url + "/";
-        }
-        if (url.indexOf("/oauth2_acs") != -1) {
-            url = url.replace("/oauth2_acs", "");
-        }
-        return url;
-    }
+    
     
     private void storeSSOTokenCookie(String ssoTokenID, HttpServletRequest req,
                                      HttpServletResponse resp) {

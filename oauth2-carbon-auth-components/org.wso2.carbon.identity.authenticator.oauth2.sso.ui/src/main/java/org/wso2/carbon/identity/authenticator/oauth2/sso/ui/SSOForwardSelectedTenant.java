@@ -1,25 +1,28 @@
 package org.wso2.carbon.identity.authenticator.oauth2.sso.ui;
 
 import java.io.IOException;
-
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.wso2.carbon.identity.authenticator.oauth2.sso.common.AACRole;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.OAUTH2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.Util;
+import org.wso2.carbon.identity.authenticator.oauth2.sso.tenant.TenantProvision;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.ui.authenticator.OAUTH2SSOUIAuthenticator;
-
+import org.wso2.carbon.ui.CarbonUIUtil;
 import java.net.URLEncoder;
-import java.util.List;
 import java.util.UUID;
 
 public class SSOForwardSelectedTenant extends HttpServlet {
 	
+	private boolean isAdmin = false;
+    private String backEndServerURL;
+    private String username;
+    
 	@Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -32,7 +35,7 @@ public class SSOForwardSelectedTenant extends HttpServlet {
 		// executes the same logic as the handleOAUTH2Responses method
 		// in SSOAssertionConsumerService.java, after tenant is obtained
 	    try {
-            handleOAUTH2Responses(req, resp);
+	    	handleOAUTH2Responses(req, resp);
         }catch(Exception e) {
 	    	handleMalformedResponses(req, resp);
 	    }
@@ -49,7 +52,7 @@ public class SSOForwardSelectedTenant extends HttpServlet {
      */
     private void handleOAUTH2Responses(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, IllegalStateException, Exception {
-    	String username = (String) req.getSession().getAttribute("tenantUsername");
+    	username = (String) req.getSession().getAttribute("tenantUsername");
 		String tenantDomain = (String) req.getParameter("tenantRadio");
 		String selectedRole = (String) req.getParameter("selectedRole");
 		String tenantContext = Util.getRoleContext();
@@ -78,17 +81,27 @@ public class SSOForwardSelectedTenant extends HttpServlet {
 		        url += "&" + OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX + "=" + URLEncoder.encode(sessionIndex, "UTF-8");
 		        req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX, sessionIndex);
 		    }
-		    RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
-		    OAUTH2SSOUIAuthenticator temp = new OAUTH2SSOUIAuthenticator();
-		    System.out.println(temp);
-    		if(new OAUTH2SSOUIAuthenticator() != null) {
-    			req.getSession().setAttribute("CarbonAuthenticator", temp);
-    		    reqDispatcher.forward(req, resp);
-    		}
-    		else {
-    			handleMalformedResponses(req, resp);
-    		}
-		    
+		    backEndServerURL = req.getParameter("backendURL");
+	    	HttpSession session = req.getSession();
+	    	ServletContext servletContext = session.getServletContext();
+	        if (backEndServerURL == null) {
+	            backEndServerURL = CarbonUIUtil.getServerURL(servletContext, session);
+	        }
+	        TenantProvision tenantProvision = new TenantProvision();
+	        tenantProvision.setBackEndURL(backEndServerURL);
+	        tenantProvision.setIsAdmin(isProvider);
+	        boolean checkTenant = tenantProvision.handleTenant(username,session);
+	        try {
+	        	if(checkTenant) {
+		    		RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
+				    req.getSession().setAttribute("CarbonAuthenticator", new OAUTH2SSOUIAuthenticator());
+		    		reqDispatcher.forward(req, resp);
+		        }else {
+		        	Util.handleMalformedResponses(req, resp, tenantProvision.getTenantError());
+		        }
+		    }catch(Exception e) {
+		    	Util.handleMalformedResponses(req, resp, OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_NO_DOMAIN_CREATED_BY_PROVIDER_ERROR);
+		    }
 		}
     }
 	/**
@@ -100,7 +113,18 @@ public class SSOForwardSelectedTenant extends HttpServlet {
      * @throws IOException Error when redirecting
      */
     private void handleMalformedResponses(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect("../oauth2-sso-acs/authFailure.jsp");
-        return;
+    	System.out.println("inside handleMalformed response");
+        resp.sendRedirect(getAdminConsoleURL(req) + "oauth2-sso-acs/authFailure.jsp");
     }
+    public static String getAdminConsoleURL(HttpServletRequest request) {
+        String url = CarbonUIUtil.getAdminConsoleURL(request);
+        if (!url.endsWith("/")) {
+            url = url + "/";
+        }
+        if (url.indexOf("/oauth2_acs") != -1) {
+            url = url.replace("/oauth2_acs", "");
+        }
+        return url;
+    }
+    
 }

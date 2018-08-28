@@ -24,7 +24,12 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
+import org.wso2.carbon.ui.CarbonUIUtil;
 import org.xml.sax.SAXException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 //import com.fasterxml.jackson.core.JsonParseException;
 //import com.fasterxml.jackson.core.type.TypeReference;
@@ -560,25 +565,37 @@ public class Util {
     	}
     	return isProvider;
     }
-    
     /**
-     * Get the username from the AAC Response
+     * Handle malformed Responses.
      *
-     * @param response AAC Response
-     * @return username username contained in the AAC Response
-     
-    public static String getUsernameFromResponse(Response response) {
-
-        List<Assertion> assertions = response.getAssertions();
-        Assertion assertion = null;
-        if (assertions != null && assertions.size() > 0) {
-            // There can be only one assertion in a AAC Response, so get the
-            // first one
-            assertion = assertions.get(0);
-            return getUsernameFromAssertion(assertion);
-
-        }
-        return null;
+     * @param req      HttpServletRequest
+     * @param resp     HttpServletResponse
+     * @param errorMsg Error message to be displayed in HttpServletResponse.jsp
+     * @throws IOException Error when redirecting
+     */
+    public static void handleMalformedResponses(HttpServletRequest req, HttpServletResponse resp, String errorMsg) throws IOException {
+        HttpSession session = req.getSession();
+        session.setAttribute(OAUTH2SSOAuthenticatorConstants.NOTIFICATIONS_ERROR_MSG, errorMsg);
+        resp.sendRedirect(getAdminConsoleURL(req) + "oauth2-sso-acs/notifications.jsp?error="+errorMsg);
+        return;
     }
-    */
+    /**
+     * Get the admin console url from the request.
+     *
+     * @param request httpServletReq that hits the ACS Servlet
+     * @return Admin Console URL
+     */
+    public static  String getAdminConsoleURL(HttpServletRequest request) {
+        String url = CarbonUIUtil.getAdminConsoleURL(request);
+        if (!url.endsWith("/")) {
+            url = url + "/";
+        }
+        if (url.indexOf("/oauth2_acs") != -1) {
+            url = url.replace("/oauth2_acs", "");
+        }
+        if (url.indexOf("/forwardtenant") != -1) {
+            url = url.replace("/forwardtenant", "");
+        }
+        return url;
+    }
 }

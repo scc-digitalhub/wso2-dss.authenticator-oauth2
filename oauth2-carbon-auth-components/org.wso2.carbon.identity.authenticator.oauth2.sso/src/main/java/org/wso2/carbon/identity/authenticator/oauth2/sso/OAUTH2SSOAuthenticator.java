@@ -85,13 +85,6 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
             tenantDomain = MultitenantUtils.getTenantDomain(username);
             int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
 
-            if(tenantId == -1) {
-            	log.error("Authentication Request is rejected. Authorization Failure.");
-                CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, username, tenantId,
-                        "OAUTH2 SSO Authentication", "Authorization Failure");
-                handleAuthenticationCompleted(tenantId, false);
-                return false;
-            }            
             handleAuthenticationStarted(tenantId);
 
             username = MultitenantUtils.getTenantAwareUsername(username);
@@ -107,7 +100,6 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
 
             PermissionUpdateUtil.updatePermissionTree(tenantId);
             boolean isAuthorized = false;
-            log.error(realm);
             if (realm != null) {
                 isAuthorized = realm.getAuthorizationManager().isUserAuthorized(username,
                         "/permission/admin/login", CarbonConstants.UI_PERMISSION_ACTION);
@@ -375,7 +367,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
 	            throw new Exception("Cannot find authenticator config for authenticator : " + AUTHENTICATOR_NAME);
 	        }
     	}catch(Exception e ) {
-        	log.info("here error: "+e.getMessage());
+        	log.error("Error provisioning user: "+e);
         }
     }
 

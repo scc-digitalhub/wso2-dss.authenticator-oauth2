@@ -106,5 +106,7 @@ public final class OAUTH2SSOAuthenticatorConstants {
         public static final String RESPONSE_USER_ERROR= "response.user.profile.error";
         public static final String RESPONSE_ROLES_LIST_ERROR= "response.role.list.error";
         public static final String RESPONSE_ROLE_MISSING_ERROR= "response.role.missing.error";
+        public static final String RESPONSE_NO_DOMAIN_CREATED_BY_PROVIDER_ERROR= "response.domain.notcreated";
+        public static final String RESPONSE_NO_DOMAIN_ACTIVE_BY_PROVIDER_ERROR= "response.domain.notactivated";
     }
 }

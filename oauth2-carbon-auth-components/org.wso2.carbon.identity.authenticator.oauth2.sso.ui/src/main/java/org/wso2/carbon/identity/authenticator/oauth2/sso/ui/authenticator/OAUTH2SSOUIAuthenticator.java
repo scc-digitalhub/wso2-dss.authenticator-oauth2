@@ -89,11 +89,6 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             if (log.isDebugEnabled()) {
                 log.debug("Invoking the OAUTH2 SSO Authenticator BE for the Response : " + tenantDomain);
             }
-            
-            boolean checkTenant = handleTenant(username,request.getSession());
-//            if(!checkTenant) {
-//            	throw new Exception("The domain has not yet been created by the provider");
-//            }
             authenticationClient = new OAUTH2SSOAuthenticationClient(
                     configContext, backEndServerURL, cookie, request.getSession());
             isAuthenticated = authenticationClient.login(tenantDomain, username, isAdmin);
@@ -231,98 +226,7 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
         return false;
     }
 
-    private boolean handleTenant(String username, HttpSession httpSession) throws Exception {
-    	int tenantId = 0;
-    	 String tenantDomain = Util.getTenantDefault(); // It is supposed that this tenant already exists
-    	 boolean tenantProvision = Boolean.parseBoolean(Util.getTenantProvisioningEnabled());
-         tenantDomain = MultitenantUtils.getTenantDomain(username);
-         if(tenantProvision) {
-	            tenantDomain = MultitenantUtils.getTenantDomain(username);
-	            tenantId = getTenantId(tenantDomain);
-	            log.info("tenant preparation: "+tenantDomain+" "+tenantId);
-	            String user = MultitenantUtils.getTenantAwareUsername(username);
-	            tenantId = provisionTenant(user, tenantDomain, tenantId);
-	            if(tenantId == 0) { // Tenant can not be created if the role is not provider
-	            	CarbonAuthenticationUtil.onFailedAdminLogin(httpSession, "", -1,
-	                        "AAC SSO Authentication:The domain has not yet been creted by the provider.", "The domain has not yet been creted by the provider.");
-	                return false;
-	            }
-         }
-         return true;
-    }
-    
     /**
-     * Provision/Create tenant on the server(SP) 
-     *
-     * @param username
-     * @param realm
-     * @param xmlObject
-     * @throws org.wso2.carbon.user.api.UserStoreException 
-     * @throws Exception 
-     * @throws AACSSOAuthenticatorException
-     */
-    private int provisionTenant(String username, String tenantDomain, int tenantId) throws Exception {
-    	try {
-	    	TenantInfoBean tenantInfoBean = new TenantInfoBean();
-	    	if(tenantId == 0 && isAdmin) {
-	    		tenantInfoBean.setAdmin("admin");
-	            tenantInfoBean.setFirstname("firstname");
-	            tenantInfoBean.setLastname("lastname");
-	            tenantInfoBean.setAdminPassword(generatePassword());
-	            tenantInfoBean.setTenantDomain(tenantDomain);
-	            tenantInfoBean.setEmail(username);
-	            tenantInfoBean.setCreatedDate(Calendar.getInstance());
-	            getTenantClient().addTenant(tenantInfoBean);
-	            tenantId = tenantClient.getTenant(tenantDomain).getTenantId();
-	    	}
-			return tenantId;
-    	}catch(Exception e) {
-    		log.info("Error provisioning tenant: " + e.getMessage());
-    		return 0;
-    	}
-    }
-    
-    /**
-     * 
-     */
-    private int getTenantId(String tenantDomain) throws Exception {
-       int tenantId = getTenantClient().getTenant(tenantDomain).getTenantId();
-               return tenantId;
-    }
-
-    
-    /**
-     * Create Tenant Client instance
-     * @return
-     * @throws Exception
-     */
-    private TenantServiceClient getTenantClient() throws Exception {
-    	try {
-	    	log.info("backend URL: "+backEndServerURL);
-	    	if( tenantClient== null) {
-	    		RealmService realmService = dataHolder.getRealmService();
-	            RealmConfiguration realmConfig = realmService.getBootstrapRealmConfiguration();
-	            String adminUser = realmConfig.getAdminUserName();
-	            String adminPassw = realmConfig.getAdminPassword();
-	    		tenantClient = new TenantServiceClient(backEndServerURL, adminUser, adminPassw) ;
-	    	}
-	    	return tenantClient;
-    	}catch(Exception e) {
-    		log.info("Problem inside getTenantClient:  " + e.getMessage());
-    		return tenantClient;
-    	}
-    	
-    }
-    /**
-     * Generates (random) password for user to be provisioned
-     *
-     * @param username
-     * @return
-     */
-    private String generatePassword() {
-        return  new BigInteger(130, random).toString(32);
-    }
-        /**
      * Read the session index from a Response
      * @param response OAUTH2 Response
      * @return Session Index value contained in the Response
