@@ -76,7 +76,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
         String state_code_session = (String) req.getSession().getAttribute(OAUTH2SSOAuthenticatorConstants.OAUTH2_AUTH_CODE_STATE);
         this.isAdmin = false;
         
-        log.info("authorization_code: "+auth_code+" state: "+state_code_session);
+        this.logInformation("authorization_code: "+auth_code+" state: "+state_code_session);
         if (log.isDebugEnabled()) { 
             Enumeration<?> headerNames = req.getHeaderNames();
             log.debug("[Request Headers] :");
@@ -125,7 +125,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	    		dataToBeSent.add("redirect_uri", Util.getRedirectUrl());
 	        	dataToBeSent.add("code", toBeSent);
 	    	}
-	    	System.out.println("data to be sent to authtoken: "+dataToBeSent.toString());
+	    	this.logInformation("data to be sent to authtoken: "+dataToBeSent.toString());
 	    	HttpHeaders headers = new HttpHeaders();
 	    	MediaType contType = MediaType.APPLICATION_FORM_URLENCODED;
 	        headers.setContentType(contType);
@@ -138,7 +138,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			list.add(jsonHttpMessageConverternew);
 			restTemplate.setMessageConverters(list);
 			AuthorizationToken response = restTemplate.postForObject(url_token, requestBody, AuthorizationToken.class);
-			log.info("obtain access_token: "+response.getAccess_token());
+			this.logInformation("obtain access_token: "+response.getAccess_token());
 	        this.access_token = response.getAccess_token();
 	        storeSSOTokenCookie(this.access_token,req,resp);
 	        this.refresh_token = response.getRefresh_token();
@@ -165,7 +165,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	
 	    	RestTemplate restTemplate = new RestTemplate();
 	    	ResponseEntity<Map> response = restTemplate.exchange(urlApi, HttpMethod.GET, httpEntity, Map.class);
-			System.out.println("response of API call:  "+response.getBody()); 
+	    	this.logInformation("response of API call:  "+response.getBody()); 
 			return response.getBody();
     	}catch(Exception e){
     		this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_USER_ERROR;
@@ -190,7 +190,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	
 	    	RestTemplate restTemplate = new RestTemplate();
 			ResponseEntity<ArrayList> response = restTemplate.exchange(urlApi, HttpMethod.GET, httpEntity, ArrayList.class);
-			System.out.println("response of ROLES API request :  "+response.getBody());
+			this.logInformation("response of ROLES API request :  "+response.getBody());
 			AACRole role = new AACRole();
 			String roleName,context,space,definedContext;
 			definedContext = Util.getRoleContext();
@@ -200,7 +200,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 				roleName = entityRow.get("role");
 				context = entityRow.get("context");
 				space = entityRow.get("space");
-				System.out.println("currentRoleName: "+roleName+ " currentContext: "+context+" currentSpace: "+space+" definedContext"+definedContext);
+				this.logInformation("currentRoleName: "+roleName+ " currentContext: "+context+" currentSpace: "+space+" definedContext"+definedContext);
 				if(context!= null && space!= null && context.equals(definedContext) 
 						&& !tenantList.contains(space)) {
 					role = new AACRole();
@@ -266,7 +266,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        	}else {
 		        		username = username+"@"+tenantDomain;
 		        	}
-		        	log.info("user name: "+username);
+		        	this.logInformation("user name: "+username);
 	        	}
         	}
         }
@@ -406,6 +406,12 @@ public class SSOAssertionConsumerService extends HttpServlet {
                 cookie.setMaxAge(0);
                 resp.addCookie(cookie);
             }
+        }
+    }
+    
+    private void logInformation(String info) {
+    	if (log.isDebugEnabled()) {
+            log.debug(info);
         }
     }
 }
