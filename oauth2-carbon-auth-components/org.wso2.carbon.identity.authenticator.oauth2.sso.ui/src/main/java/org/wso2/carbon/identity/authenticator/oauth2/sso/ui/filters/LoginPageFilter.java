@@ -52,6 +52,7 @@ public class LoginPageFilter implements Filter {
             return;
         }
         if (Util.getLandingPage() != null) {
+        	((HttpServletRequest) servletRequest).getSession().setAttribute("CarbonAuthenticator", null);
             ((HttpServletResponse) servletResponse).sendRedirect(Util.getLandingPage());
         } else {
         	String state =  UUID.randomUUID().toString();

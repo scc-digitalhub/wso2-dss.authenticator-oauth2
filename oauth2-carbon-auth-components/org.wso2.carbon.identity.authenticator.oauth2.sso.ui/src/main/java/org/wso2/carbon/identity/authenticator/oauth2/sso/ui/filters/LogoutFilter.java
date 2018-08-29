@@ -48,6 +48,7 @@ public class LogoutFilter implements Filter {
     		ssoManager.handleLogout(sessionIndex);
     	}
     	String landingPage = Util.getLandingPage();
+    	((HttpServletRequest) servletRequest).getSession().setAttribute("CarbonAuthenticator", null);
     	((HttpServletResponse) servletResponse).sendRedirect(landingPage);
     }
 
