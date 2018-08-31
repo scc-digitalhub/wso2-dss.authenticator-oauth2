@@ -86,6 +86,7 @@ public class TenantProvision {
 	            tenantInfoBean.setTenantDomain(tenantDomain);
 	            tenantInfoBean.setEmail(username);
 	            tenantInfoBean.setCreatedDate(Calendar.getInstance());
+	            tenantInfoBean.setActive(true);
 	            getTenantClient().addTenant(tenantInfoBean);
 	            tenantId = tenantClient.getTenant(tenantDomain).getTenantId();
 	    	}else if(tenantDomain.equals("carbon.super")) {
