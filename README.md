@@ -21,7 +21,7 @@ Execute the following command in order to generate the necessary jars and put ea
 mvn clean install
 
 ```
-
+This component is being integrated inside the enhanced version of product-dss. You can find [`here`](https://github.com/coinnovationlab/product-dss) instructions on how to deploy it.
 # 2. Configuring OAuth2 providers
 
 
@@ -96,19 +96,17 @@ In the file repository/conf/security/authenticators.xml put the following xml co
 	     <Parameter name="UserProvisioningEnabled">true</Parameter>
 	     <Parameter name="TenantProvisioningEnabled">true</Parameter>
 	     <Parameter name="TenantDefault">testdomain.com</Parameter>
-	     <Parameter name="ProvisioningDefaultRole">DSS_PERMISSON_EXAMPLE</Parameter>
 	     <Parameter name="ClientID">YOUR_AAC_CLIENT_ID</Parameter>
 	     <Parameter name="ClientSecret">YOUR_AAC_CLIENT_SECRET</Parameter>
   	     <Parameter name="AuthorizationURL">http://localhost:8080/aac/oauth/authorize</Parameter>
 	     <Parameter name="TokenURL">http://localhost:8080/aac/oauth/token</Parameter>
-	     <Parameter name="CheckTokenEndpointUrl">http://localhost:8080/aac/resources/access</Parameter>
+	     <Parameter name="CheckTokenEndpointUrl">http://localhost:8080/aac/resources/token</Parameter>
 	     <Parameter name="APIUserInfoURL">http://localhost:8080/aac/basicprofile/me</Parameter>
 	     <Parameter name="APIRoleInfoURL">http://localhost:8080/aac/userroles/me</Parameter>
 	     <Parameter name="GetRolesOfTokenURL">http://localhost:8080/aac/userroles/token</Parameter>
 	     <Parameter name="ApiKeyCheckURL">http://localhost:8080/aac/apikeycheck</Parameter>
 	     <Parameter name="MaxExpireSecToken">86400</Parameter>	     
 	     <Parameter name="ScopesListUserInfo">profile.basicprofile.me profile.accountprofile.me user.roles.me user.roles.read</Parameter>
-	     <Parameter name="ScopesListRoleInfo">user.roles.me user.roles.read</Parameter>
 	     <Parameter name="UserNameField">username</Parameter>
 	     <Parameter name="RoleContext">YOUR_ROLE_CONTEXT</Parameter>
 	     <Parameter name="SelectTenantURL">https://localhost:9444/carbon/oauth2-sso-acs/select_tenant.jsp</Parameter>
