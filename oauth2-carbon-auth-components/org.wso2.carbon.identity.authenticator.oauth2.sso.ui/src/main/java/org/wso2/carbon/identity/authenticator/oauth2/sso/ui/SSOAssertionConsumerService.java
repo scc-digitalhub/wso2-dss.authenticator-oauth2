@@ -200,7 +200,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 				roleName = entityRow.get("role");
 				context = entityRow.get("context");
 				space = entityRow.get("space");
-				this.logInformation("currentRoleName: "+roleName+ " currentContext: "+context+" currentSpace: "+space+" definedContext"+definedContext);
+				this.logInformation("currentRoleName: "+roleName+ " currentContext: "+context+" currentSpace: "+space+" definedContext: "+definedContext);
 				if(context!= null && space!= null && context.equals(definedContext) 
 						&& !tenantList.contains(space)) {
 					role = new AACRole();
@@ -243,7 +243,11 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        	boolean roleProvision = Util.getApiRoleInfoUrl() != null && !Util.getApiRoleInfoUrl().equals("");
 		        	if(roleProvision) {
 		        		List<AACRole> rolesInfo = handleAPI_ROLES_Request(req, resp, Util.getApiRoleInfoUrl());
-		        		if(rolesInfo != null && rolesInfo.size()>0) {
+		        		if(username.equals("admin")) {
+		        			tenantDomain = "carbon.super";
+		        			this.isAdmin = true;
+		        		}
+		        		else if(rolesInfo != null && rolesInfo.size()>0) {
 		        			if (rolesInfo.size() == 1) { // only 1 tenant available
 		        				tenantDomain = (String) rolesInfo.get(0).getSpace();
 		        				String tenantRole = (String) rolesInfo.get(0).getRole();
@@ -258,11 +262,11 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        			}
 		        		} else {
 		        			this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_ROLE_MISSING_ERROR;
-		        			throw new Exception("NO Role.This service is not enabled for your organization. Please contact the administrator of your organization.");
+		        			throw new Exception("No roles in AAC.This service is not enabled for your organization. Please contact the administrator of your organization.");
 		        		}
 		        	}
 		        	if(!username.contains("@")) { 
-		        		username = username+"@"+tenantContext+".super@"+tenantDomain;
+		        		username = username+"@carbon.super";
 		        	}else {
 		        		username = username+"@"+tenantDomain;
 		        	}
@@ -410,8 +414,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
     }
     
     private void logInformation(String info) {
-    	if (log.isDebugEnabled()) {
-            log.debug(info);
-        }
+    	//if (log.isDebugEnabled()) {
+            log.info(info);
+        //}
     }
 }

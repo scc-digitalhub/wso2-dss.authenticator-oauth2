@@ -79,7 +79,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
                 return false;
             }
 
-            System.out.println("response from AACSSOUI : "+username);
+            log.info("response from AACSSOUI : "+username);
             RegistryService registryService = dataHolder.getRegistryService();
             RealmService realmService = dataHolder.getRealmService();
             tenantDomain = MultitenantUtils.getTenantDomain(username);
@@ -289,18 +289,10 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
 	            	if (userstore == null) {
 	            		userstore = realm.getUserStoreManager();
 	            	}
-	                String[] newRoles = getRoles();
-	                // Load default role if AAC didn't specify roles
-	                if (newRoles == null || newRoles.length == 0) {
-	                    if (configParameters.containsKey(OAUTH2SSOAuthenticatorConstants.PROVISIONING_DEFAULT_ROLE)) {
-	                        newRoles = new String[]{configParameters.get(OAUTH2SSOAuthenticatorConstants.PROVISIONING_DEFAULT_ROLE)};
-	                    }
-	                }
+	                String[] newRoles = getRoles(configParameters);
 	                if (newRoles == null) {
 	                    newRoles = new String[]{};
-	                }
-	
-	
+	                }	
 	                if (log.isDebugEnabled()) {
 	                    log.debug("User " + username + " contains roles : " + Arrays.toString(newRoles) + " as per response and (default role) config");
 	                }
@@ -345,19 +337,15 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
 	                        log.debug("Deleting roles : " + Arrays.toString(deletingRoles.toArray(new String[0])) + " and Adding roles : " + Arrays.toString(addingRoles.toArray(new String[0])));
 	                    }
 	                    userstore.updateRoleListOfUser(username, deletingRoles.toArray(new String[0]), addingRoles.toArray(new String[0]));
-	                    if (log.isDebugEnabled()) {
-	                        log.debug("User: " + username + " is updated via AAC authenticator with roles : " + Arrays.toString(newRoles));
-	                    }
-	                } else {    
-	                    userstore.addUser(username, generatePassword(), addingRoles.toArray(new String[0]), null, null);
+                        log.info("User: " + username + " is updated via AAC authenticator with roles : " + Arrays.toString(newRoles));
+	                } else {   
+	                	log.info("User: " + username + " is provisioned via AAC authenticator with roles : " + Arrays.toString(addingRoles.toArray(new String[0])));
+	                	userstore.addUser(username, generatePassword(), addingRoles.toArray(new String[0]), null, null);
 	                    realm.getAuthorizationManager().authorizeUser(username, "/permission/admin/login", CarbonConstants.UI_PERMISSION_ACTION);
-	                    if (log.isDebugEnabled()) {
-	                        log.debug("User: " + username + " is provisioned via AAC authenticator with roles : " + Arrays.toString(addingRoles.toArray(new String[0])));
-	                    }
-	                }
+                        	                }
 	            } else {
 	                if (log.isDebugEnabled()) {
-	                    log.debug("User provisioning diabled");
+	                    log.debug("User provisioning disabled");
 	                }
 	            }
 	        } else {
@@ -398,10 +386,18 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
      *
      * @return String array of roles
      */
-    private String[] getRoles() {
+    private String[] getRoles(Map<String, String> configParameters) {
     	
     	String[] arrRoles = new String [1];
-    	arrRoles[0] = "";
+    	//TODO to be used when defining the roles/permissions in AAC
+    	
+//    	if (configParameters.containsKey(OAUTH2SSOAuthenticatorConstants.PROVISIONING_DEFAULT_ROLE)
+//    			&& configParameters.get(OAUTH2SSOAuthenticatorConstants.PROVISIONING_DEFAULT_ROLE) != null
+//    			&& !configParameters.get(OAUTH2SSOAuthenticatorConstants.PROVISIONING_DEFAULT_ROLE).isEmpty() ) 
+//    	{
+//    		arrRoles[0] = configParameters.get(OAUTH2SSOAuthenticatorConstants.PROVISIONING_DEFAULT_ROLE);
+//        }
+        arrRoles[0] = "";
     	if(isAdmin) {
     		arrRoles[0]= "admin";
     	}

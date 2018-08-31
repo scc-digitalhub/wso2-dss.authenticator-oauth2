@@ -64,8 +64,8 @@ public class SSOForwardSelectedTenant extends HttpServlet {
 		if(username != null) {
 			boolean isProvider = Util.isProvider(selectedRole, tenantContext);
 			req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isProvider);
-			if(!username.contains("@")) { 
-	    		username = username+"@"+tenantContext+".super@"+tenantDomain;
+			if(username.equals("admin")) { 
+				username = username+"@carbon.super";
 	    	}else {
 	    		username = username+"@"+tenantDomain;
 	    	}

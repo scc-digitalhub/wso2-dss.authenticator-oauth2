@@ -98,7 +98,6 @@ public class Util {
 	private static String apiUserInfoUrl = null;
 	private static String apiRoleInfoUrl = null;
 	private static String scopesListUserInfo = null;
-	private static String scopeListRoleInfo = null;
 	private static String access_token = null;
 	private static String refresh_token = null;
 	private static String selectTenantUrl = null;
@@ -137,7 +136,6 @@ public class Util {
 			apiUserInfoUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.API_USER_INFO_URL);
 			apiRoleInfoUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.API_ROLE_INFO_URL);
 			scopesListUserInfo = parameters.get(OAUTH2SSOAuthenticatorConstants.SCOPES_LIST_USER_INFO);
-			scopeListRoleInfo = parameters.get(OAUTH2SSOAuthenticatorConstants.SCOPES_LIST_ROLE_INFO);
 			selectTenantUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.SELECT_TENANT_URL);
 			tenantSelectedUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.TENANT_SELECTED_URL);
         		
@@ -328,19 +326,6 @@ public class Util {
         return parameters.get(OAUTH2SSOAuthenticatorConstants.TENANT_DEFAULT);
     }
 
-	/**
-     * Returns the list of the scopes that specify the level of access that the application is requesting regarding rolesInfo API
-     * 
-     * @return 
-     */
-    public static String getScopeListRoleInfo() {
-
-        if (!initSuccess) {
-            initSSOConfigParams();
-        }
-        return scopeListRoleInfo;
-    }
-    
 	/**
      * Returns the list of the scopes that specify the level of access that the application is requesting regarding userinfo API
      * 

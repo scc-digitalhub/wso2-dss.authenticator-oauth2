@@ -88,6 +88,8 @@ public class TenantProvision {
 	            tenantInfoBean.setCreatedDate(Calendar.getInstance());
 	            getTenantClient().addTenant(tenantInfoBean);
 	            tenantId = tenantClient.getTenant(tenantDomain).getTenantId();
+	    	}else if(tenantDomain.equals("carbon.super")) {
+	    		tenantId = -1234;
 	    	}
 			return tenantId;
     	}catch(Exception e) {
@@ -99,13 +101,13 @@ public class TenantProvision {
      * 
      */
     private int getTenantId(String tenantDomain) throws Exception {
-       int tenantId = getTenantClient().getTenant(tenantDomain).getTenantId();
+       int tenantId = (tenantDomain.equals("carbon.super") ? -1234 : getTenantClient().getTenant(tenantDomain).getTenantId());
        log.info("Getting the tenant Id: "+tenantId);
        return tenantId;
     }
     
     private boolean getTenantIsActive(String tenantDomain) throws Exception {
-        boolean isActive = getTenantClient().getTenant(tenantDomain).getActive();
+        boolean isActive = (tenantDomain.equals("carbon.super") ? true  : getTenantClient().getTenant(tenantDomain).getActive());
         log.info("Getting the tenant active: "+isActive);
         return isActive;
      }

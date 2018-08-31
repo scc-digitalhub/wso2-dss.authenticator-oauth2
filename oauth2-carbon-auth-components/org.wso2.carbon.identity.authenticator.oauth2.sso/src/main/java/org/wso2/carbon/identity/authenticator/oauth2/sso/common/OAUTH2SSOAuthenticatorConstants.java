@@ -79,7 +79,6 @@ public final class OAUTH2SSOAuthenticatorConstants {
     public static final String MAX_EXPIRE_SEC_TOKEN = "MaxExpireSecToken";
     public static final String MAX_EXPIRE_SEC_TOKEN_VALUE= "86400";
     public static final String SCOPES_LIST_USER_INFO = "ScopesListUserInfo";
-    public static final String SCOPES_LIST_ROLE_INFO = "ScopesListRoleInfo";
     public static final String USER_NAME_FIELD = "UserNameField";
     public static final String TENANT_DEFAULT = "TenantDefault";
     public static final String SELECT_TENANT_URL = "SelectTenantURL";
