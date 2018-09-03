@@ -48,8 +48,10 @@ public class LogoutFilter implements Filter {
     		ssoManager.handleLogout(sessionIndex);
     	}
     	String landingPage = Util.getLandingPage();
+    	String IdentityProviderSSOServiceURL = Util.getIdentityProviderSSOServiceURL();
     	((HttpServletRequest) servletRequest).getSession().setAttribute("CarbonAuthenticator", null);
-    	((HttpServletResponse) servletResponse).sendRedirect(landingPage);
+    	String URL = IdentityProviderSSOServiceURL + "/logout?target=" + landingPage;
+    	((HttpServletResponse) servletResponse).sendRedirect(URL);
     }
 
     private void refreshToken() {
