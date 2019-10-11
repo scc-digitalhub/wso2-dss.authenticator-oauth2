@@ -312,6 +312,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        }
 		        TenantProvision tenantProvision = new TenantProvision();
 		        tenantProvision.setBackEndURL(backEndServerURL);
+		        tenantProvision.setIsAdmin(this.isAdmin);
 		        boolean checkTenant = tenantProvision.handleTenant(username,session);
 		    	if(checkTenant) {
 		    		RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
