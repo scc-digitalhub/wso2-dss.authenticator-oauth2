@@ -415,8 +415,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
     }
     
     private void logInformation(String info) {
-    	//if (log.isDebugEnabled()) {
+    	if (log.isDebugEnabled()) {
             log.info(info);
-        //}
+        }
     }
 }
