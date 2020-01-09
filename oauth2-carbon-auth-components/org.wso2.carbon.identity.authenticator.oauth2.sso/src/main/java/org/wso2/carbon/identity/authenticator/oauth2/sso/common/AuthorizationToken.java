@@ -1,7 +1,8 @@
 package org.wso2.carbon.identity.authenticator.oauth2.sso.common;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AuthorizationToken {
 
 	private String access_token;

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>co.innovation.lab</groupId>
   <artifactId>org.wso2.carbon.identity.authenticator.oauth2</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Custom Authenticator with OAUTH2</name>
   <description>Custom Authenticator with OAUTH2</description>
@@ -127,4 +127,23 @@
         <maven.buildnumber.plugin.version>1.4</maven.buildnumber.plugin.version>
     </properties>
     
+    <distributionManagement>
+
+		<repository>
+
+			<id>SmartCommunityLab-releases</id>
+
+			<url>http://repository.smartcommunitylab.it/content/repositories/releases</url>
+
+		</repository>
+
+		<snapshotRepository>
+
+			<id>SmartCommunityLab-snapshots</id>
+
+			<url>http://repository.smartcommunitylab.it/content/repositories/snapshots</url>
+
+		</snapshotRepository>
+
+	</distributionManagement>
 </project>
