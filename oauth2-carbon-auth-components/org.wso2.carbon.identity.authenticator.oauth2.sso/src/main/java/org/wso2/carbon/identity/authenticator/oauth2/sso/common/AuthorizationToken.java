@@ -10,6 +10,7 @@ public class AuthorizationToken {
     private String refresh_token ;
     private String id_token;
     private String scope;
+    private String jti;
     
     public AuthorizationToken() {
     	
@@ -72,4 +73,13 @@ public class AuthorizationToken {
     public void setScope(String scope) {
     	this.scope = scope;
     }
+
+	public String getJti() {
+		return jti;
+	}
+
+	public void setJti(String jti) {
+		this.jti = jti;
+	}
+    
 }
