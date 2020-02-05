@@ -140,7 +140,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			AuthorizationToken response = restTemplate.postForObject(url_token, requestBody, AuthorizationToken.class);
 			this.logInformation("obtain access_token: "+response.getAccess_token());
 	        this.access_token = response.getAccess_token();
-	        storeSSOTokenCookie(this.access_token,req,resp);
 	        this.refresh_token = response.getRefresh_token();
 	        //TODO call refresh_token to obtain new token if expired
     	}catch(Exception e) {
@@ -291,7 +290,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
 	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, this.isAdmin);
 	        req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
-	        req.getSession().setAttribute("refresh_token", this.refresh_token);
+//	        req.getSession().setAttribute("refresh_token", this.refresh_token);
 	        String sessionIndex = null;
 	        sessionIndex = UUID.randomUUID().toString();
 	        String url = req.getRequestURI();
@@ -340,36 +339,36 @@ public class SSOAssertionConsumerService extends HttpServlet {
     	req.getSession().setAttribute("tenantList", tenantList); // list of tenants for current user
     	req.getSession().setAttribute("tenantSelectedURL", Util.getTenantSelectedUrl()); // URL to redirect to after tenant is selected
     	req.getSession().setAttribute("tenantUsername", username); // will be needed after the redirect
-    	req.getSession().setAttribute("refresh_token", this.refresh_token);
+//    	req.getSession().setAttribute("refresh_token", this.refresh_token);
     	String url = Util.getSelectTenantUrl();
     	resp.sendRedirect(url); // redirects to tenant selection page
     	return;
     }
     
     
-    private void storeSSOTokenCookie(String ssoTokenID, HttpServletRequest req,
-                                     HttpServletResponse resp) {
-        Cookie ssoTokenCookie = getSSOTokenCookie(req);
-        if (ssoTokenCookie == null) {
-            ssoTokenCookie = new Cookie(SSO_TOKEN_ID, ssoTokenID);
-            ssoTokenCookie.setSecure(true);
-            //ssoTokenCookie.setHttpOnly(true);
-        }
-        ssoTokenCookie.setMaxAge(SSO_SESSION_EXPIRE);
-        resp.addCookie(ssoTokenCookie);
-    }
-
-    private Cookie getSSOTokenCookie(HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("ssoTokenId".equals(cookie.getName())) {
-                    return cookie;
-                }
-            }
-        }
-        return null;
-    }
+//    private void storeSSOTokenCookie(String ssoTokenID, HttpServletRequest req,
+//                                     HttpServletResponse resp) {
+//        Cookie ssoTokenCookie = getSSOTokenCookie(req);
+//        if (ssoTokenCookie == null) {
+//            ssoTokenCookie = new Cookie(SSO_TOKEN_ID, ssoTokenID);
+//            ssoTokenCookie.setSecure(true);
+//            //ssoTokenCookie.setHttpOnly(true);
+//        }
+//        ssoTokenCookie.setMaxAge(SSO_SESSION_EXPIRE);
+//        resp.addCookie(ssoTokenCookie);
+//    }
+//
+//    private Cookie getSSOTokenCookie(HttpServletRequest req) {
+//        Cookie[] cookies = req.getCookies();
+//        if (cookies != null) {
+//            for (Cookie cookie : cookies) {
+//                if ("ssoTokenId".equals(cookie.getName())) {
+//                    return cookie;
+//                }
+//            }
+//        }
+//        return null;
+//    }
 
     private void handleExternalLogout(HttpServletRequest req, HttpServletResponse resp, String externalLogoutPage) throws IOException {
 
