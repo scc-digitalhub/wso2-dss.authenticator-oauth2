@@ -84,7 +84,7 @@ public class TenantProvision {
 	            tenantInfoBean.setLastname("lastname");
 	            tenantInfoBean.setAdminPassword(generatePassword());
 	            tenantInfoBean.setTenantDomain(tenantDomain);
-	            tenantInfoBean.setEmail(username);
+	            tenantInfoBean.setEmail(username.contains("@") ? username : username+"@"+tenantDomain);
 	            tenantInfoBean.setCreatedDate(Calendar.getInstance());
 	            tenantInfoBean.setActive(true);
 	            getTenantClient().addTenant(tenantInfoBean);

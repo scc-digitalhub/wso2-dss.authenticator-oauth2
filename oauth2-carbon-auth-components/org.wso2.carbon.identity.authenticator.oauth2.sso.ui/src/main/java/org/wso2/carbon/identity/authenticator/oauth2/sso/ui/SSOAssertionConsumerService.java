@@ -34,6 +34,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -144,8 +145,10 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        //TODO call refresh_token to obtain new token if expired
     	}catch(Exception e) {
     		log.error("Error obtaining token: "+e.getMessage());
+    		this.access_token = null;
+	        this.refresh_token = null;
     		this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_TOKEN_ERROR;
-            return;
+    		throw new Exception("Error obtaining token: " + OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_TOKEN_ERROR);
     	}
     }
     
@@ -233,97 +236,104 @@ public class SSOAssertionConsumerService extends HttpServlet {
         String username = null;
         String tenantDomain = Util.getTenantDefault();
         String tenantContext = Util.getRoleContext();
-        if(auth_code!= null) {
-        	getAccessToken(req,resp,auth_code,"access_token");
-        	if(this.access_token != null) {
-	        	Map<String,Object> userInfo = handleAPI_GET_Request(req, resp, Util.getApiUserInfoUrl());
-	        	if(userInfo != null) {
-	        		username = (String) userInfo.get(Util.getLoginAttributeName());
-		        	boolean roleProvision = Util.getApiRoleInfoUrl() != null && !Util.getApiRoleInfoUrl().equals("");
-		        	if(roleProvision) {
-		        		List<AACRole> rolesInfo = handleAPI_ROLES_Request(req, resp, Util.getApiRoleInfoUrl());
-		        		if(username.equals("admin")) {
-		        			tenantDomain = "carbon.super";
-		        			this.isAdmin = true;
-		        		}
-		        		else if(rolesInfo != null && rolesInfo.size()>0) {
-		        			if (rolesInfo.size() == 1) { // only 1 tenant available
-		        				tenantDomain = (String) rolesInfo.get(0).getSpace();
-		        				String tenantRole = (String) rolesInfo.get(0).getRole();
-		        				String context = (String) rolesInfo.get(0).getContext();
-		        				boolean isProvider = Util.isProvider(tenantRole, context);
-		    					if(isProvider) {
-		    						this.isAdmin = isProvider;
-		    					}
-		        			} else { // multiple tenants, user needs to choose one
-		        				selectTenant(req, resp, rolesInfo, username); // redirects to tenant selection
-		        				return; // without returning, it would execute the remaining code before the user can select the tenant
-		        			}
-		        		} else {
-		        			this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_ROLE_MISSING_ERROR;
-		        			throw new Exception("No roles in AAC.This service is not enabled for your organization. Please contact the administrator of your organization.");
-		        		}
+        try {
+	        if(auth_code!= null) {
+	        	getAccessToken(req,resp,auth_code,"access_token");
+	        	if(this.access_token != null) {
+		        	Map<String,Object> userInfo = handleAPI_GET_Request(req, resp, Util.getApiUserInfoUrl());
+		        	if(userInfo != null) {
+		        		username = (String) userInfo.get(Util.getLoginAttributeName());
+			        	boolean roleProvision = Util.getApiRoleInfoUrl() != null && !Util.getApiRoleInfoUrl().equals("");
+			        	if(roleProvision) {
+			        		List<AACRole> rolesInfo = handleAPI_ROLES_Request(req, resp, Util.getApiRoleInfoUrl());
+	//		        		if(username.equals("admin")) {
+	//		        			tenantDomain = "carbon.super";
+	//		        			this.isAdmin = true;
+	//		        		}
+			        		if(rolesInfo != null && rolesInfo.size()>0) {
+			        			if (rolesInfo.size() == 1) { // only 1 tenant available
+			        				tenantDomain = (String) rolesInfo.get(0).getSpace();
+			        				String tenantRole = (String) rolesInfo.get(0).getRole();
+			        				String context = (String) rolesInfo.get(0).getContext();
+			        				boolean isProvider = Util.isProvider(tenantRole, context);
+			    					if(isProvider) {
+			    						this.isAdmin = isProvider;
+			    					}
+			        			} else { // multiple tenants, user needs to choose one
+			        				selectTenant(req, resp, rolesInfo, username); // redirects to tenant selection
+			        				return; // without returning, it would execute the remaining code before the user can select the tenant
+			        			}
+			        		} else {
+			        			this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_ROLE_MISSING_ERROR;
+			        			throw new Exception("No roles in AAC.This service is not enabled for your organization. Please contact the administrator of your organization.");
+			        		}
+			        	}
+//			        	if(!username.contains("@")) { 
+//			        		username = username+"@carbon.super";
+//			        	}else {
+//			        		username = username+"@"+tenantDomain;
+//			        	}
+			        	username = username+"@"+tenantDomain;
+			        	this.logInformation("user name: "+username);
 		        	}
-		        	if(!username.contains("@")) { 
-		        		username = username+"@carbon.super";
-		        	}else {
-		        		username = username+"@"+tenantDomain;
-		        	}
-		        	this.logInformation("user name: "+username);
 	        	}
-        	}
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("A username is extracted from the response. : " + username);
-        }
-
-        if (username == null) {
-            log.error("OAUTH2Response does not contain the username");
-            this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_USER_ERROR;
-            throw new Exception("OAUTH2Response does not contain the username");
-        }
-
-        if(username != null) {
-	        // Set the OAUTH2 access_token as a HTTP Attribute
-	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, this.access_token);
-	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
-	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
-	        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, this.isAdmin);
-	        req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
-//	        req.getSession().setAttribute("refresh_token", this.refresh_token);
-	        String sessionIndex = null;
-	        sessionIndex = UUID.randomUUID().toString();
-	        String url = req.getRequestURI();
-	        url = url.replace("oauth2_acs","carbon/admin/login_action.jsp?username=" + URLEncoder.encode(username, "UTF-8"));
-	        if(sessionIndex != null) {
-	            url += "&" + OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX + "=" + URLEncoder.encode(sessionIndex, "UTF-8");
-	            req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX, sessionIndex);
 	        }
-	        if(log.isDebugEnabled()) {
-	            log.debug("Forwarding to path : " + url);
+	        if (log.isDebugEnabled()) {
+	            log.debug("A username is extracted from the response. : " + username);
 	        }
-	        try {
-		        backEndServerURL = req.getParameter("backendURL");
-		    	HttpSession session = req.getSession();
-		    	ServletContext servletContext = session.getServletContext();
-		        if (backEndServerURL == null) {
-		            backEndServerURL = CarbonUIUtil.getServerURL(servletContext, session);
+	
+	        if (username == null) {
+	            log.error("OAUTH2Response does not contain the username");
+	            this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_USER_ERROR;
+	            throw new Exception("OAUTH2Response does not contain the username");
+	        }
+	
+	        if(username != null) {
+		        // Set the OAUTH2 access_token as a HTTP Attribute
+		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, this.access_token);
+		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
+		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
+		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, this.isAdmin);
+		        req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
+	//	        req.getSession().setAttribute("refresh_token", this.refresh_token);
+		        String sessionIndex = null;
+		        sessionIndex = UUID.randomUUID().toString();
+		        String url = req.getRequestURI();
+		        url = url.replace("oauth2_acs","carbon/admin/login_action.jsp?username=" + URLEncoder.encode(username, "UTF-8"));
+		        if(sessionIndex != null) {
+		            url += "&" + OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX + "=" + URLEncoder.encode(sessionIndex, "UTF-8");
+		            req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX, sessionIndex);
 		        }
-		        TenantProvision tenantProvision = new TenantProvision();
-		        tenantProvision.setBackEndURL(backEndServerURL);
-		        tenantProvision.setIsAdmin(this.isAdmin);
-		        boolean checkTenant = tenantProvision.handleTenant(username,session);
-		    	if(checkTenant) {
-		    		RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
-				    req.getSession().setAttribute("CarbonAuthenticator", new OAUTH2SSOUIAuthenticator());
-		    		reqDispatcher.forward(req, resp);
-		        }else {
-		        	Util.handleMalformedResponses(req, resp, tenantProvision.getTenantError());
+		        if(log.isDebugEnabled()) {
+		            log.debug("Forwarding to path : " + url);
 		        }
-		    }catch(Exception e) {
-		    	Util.handleMalformedResponses(req, resp, OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_NO_DOMAIN_CREATED_BY_PROVIDER_ERROR);
-		    }
-        }
+		        try {
+			        backEndServerURL = req.getParameter("backendURL");
+			    	HttpSession session = req.getSession();
+			    	ServletContext servletContext = session.getServletContext();
+			        if (backEndServerURL == null) {
+			            backEndServerURL = CarbonUIUtil.getServerURL(servletContext, session);
+			        }
+			        TenantProvision tenantProvision = new TenantProvision();
+			        tenantProvision.setBackEndURL(backEndServerURL);
+			        tenantProvision.setIsAdmin(this.isAdmin);
+			        boolean checkTenant = tenantProvision.handleTenant(username,session);
+			    	if(checkTenant) {
+			    		RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
+					    req.getSession().setAttribute("CarbonAuthenticator", new OAUTH2SSOUIAuthenticator());
+			    		reqDispatcher.forward(req, resp);
+			        }else {
+			        	Util.handleMalformedResponses(req, resp, tenantProvision.getTenantError());
+			        }
+			    }catch(Exception e) {
+			    	Util.handleMalformedResponses(req, resp, OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_NO_DOMAIN_CREATED_BY_PROVIDER_ERROR);
+			    }
+	        }
+        }catch(Exception e) {
+    		log.error("Error handling Oauth2 reponse: "+e.getMessage());
+    		this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_TOKEN_ERROR;
+            return;
+    	}
     }  
     /**
      * Redirect to tenant selection page.
@@ -412,7 +422,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
             }
         }
     }
-    
     private void logInformation(String info) {
     	if (log.isDebugEnabled()) {
             log.info(info);

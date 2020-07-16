@@ -64,11 +64,12 @@ public class SSOForwardSelectedTenant extends HttpServlet {
 		if(username != null) {
 			boolean isProvider = Util.isProvider(selectedRole, tenantContext);
 			req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isProvider);
-			if(username.equals("admin")) { 
-				username = username+"@carbon.super";
-	    	}else {
-	    		username = username+"@"+tenantDomain;
-	    	}
+//			if(username.equals("admin")) { 
+//				username = username+"@carbon.super";
+//	    	}else {
+//	    		username = username+"@"+tenantDomain;
+//	    	}
+			username = username+"@"+tenantDomain;
 			req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, req.getSession().getAttribute("refresh_token"));
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
