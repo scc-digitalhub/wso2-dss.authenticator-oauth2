@@ -66,12 +66,6 @@ public class Util {
 
     }
 
-    private static final char[] charMapping = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-            'k', 'l', 'm', 'n', 'o', 'p'};
-    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
-            Constants.SECURITY_MANAGER_PROPERTY;
-    private static final int ENTITY_EXPANSION_LIMIT = 0;
-    private static boolean bootStrapped = false;
     private static Log log = LogFactory.getLog(Util.class);
     private static Random random = new Random();
     private static String serviceProviderId = null;
@@ -98,10 +92,9 @@ public class Util {
 	private static String apiUserInfoUrl = null;
 	private static String apiRoleInfoUrl = null;
 	private static String scopesListUserInfo = null;
-	private static String access_token = null;
-	private static String refresh_token = null;
 	private static String selectTenantUrl = null;
 	private static String tenantSelectedUrl = null;
+	private static String roleProvider = null;
 
     /**
      * Sets the issuerID and IDP SSO Service URL during the server start-up by reading
@@ -138,6 +131,7 @@ public class Util {
 			scopesListUserInfo = parameters.get(OAUTH2SSOAuthenticatorConstants.SCOPES_LIST_USER_INFO);
 			selectTenantUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.SELECT_TENANT_URL);
 			tenantSelectedUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.TENANT_SELECTED_URL);
+			roleProvider = parameters.get(OAUTH2SSOAuthenticatorConstants.ROLE_PROVIDER);
         		
             initSuccess = true;
         }
@@ -541,11 +535,23 @@ public class Util {
         return tenantSelectedUrl;
     }
     
+    /**
+     * Returns the value of the RoleProvider if specified in the authenticators config file
+     *
+     */
+    public static String getRoleProvider() {
+
+        if (!initSuccess) {
+            initSSOConfigParams();
+        }
+        return roleProvider;
+    }
+    
     public static boolean isProvider (String roleName, String context) {
     	boolean isProvider = false;
     	String definedContext = Util.getRoleContext();
-    	if(context != null && context.equals(definedContext) 
-    			&& roleName.equals(OAUTH2SSOAuthenticatorConstants.ROLE_PROVIDER)) {
+    	String roleProvider = Util.getRoleProvider();
+    	if(context != null && context.equals(definedContext) && roleName.equals(roleProvider)) {
     		isProvider = true;
     	}
     	return isProvider;

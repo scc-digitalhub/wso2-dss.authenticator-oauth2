@@ -8,7 +8,6 @@ public class AACRole {
 	private String context;
 	private String space;
 	private String authority;
-	private static final String PROVIDER = "ROLE_PROVIDER";
 	private static final String USER = "ROLE_USER";
 	public enum RoleScope {
 		SYSTEM, APPLICATION, TENANT, USER

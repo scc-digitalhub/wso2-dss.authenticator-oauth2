@@ -84,14 +84,13 @@ public final class OAUTH2SSOAuthenticatorConstants {
     public static final String SELECT_TENANT_URL = "SelectTenantURL";
     public static final String TENANT_SELECTED_URL = "TenantSelectedURL";
     public static final String OAUTH_PROVIDER_NAME = "OauthProviderName";
-    
+    public static final String ROLE_PROVIDER = "RoleProvider";
     
     //AAC parameters
     public static final String ROLE_SPACE = "RoleSpace";
     public static final String ROLE_CONTEXT= "RoleContext";
     public static final String ROLE_SPACE_VALUE = "dss.com"; 
     public static final String ROLE_CONTEXT_VALUE = "components/dss";
-    public static final String ROLE_PROVIDER = "ROLE_MANAGER";
 
     public static final class ErrorMessageConstants {
         private ErrorMessageConstants(){

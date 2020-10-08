@@ -202,15 +202,26 @@ public class SSOAssertionConsumerService extends HttpServlet {
 				roleName = entityRow.get("role");
 				context = entityRow.get("context");
 				space = entityRow.get("space");
-				this.logInformation("currentRoleName: "+roleName+ " currentContext: "+context+" currentSpace: "+space+" definedContext: "+definedContext);
-				if(context!= null && space!= null && context.equals(definedContext) 
-						&& !tenantList.contains(space)) {
-					role = new AACRole();
-					role.setContext(context);
-					role.setRole(roleName);
-					role.setSpace(space);
-					rolesList.add(role);
-					tenantList.add(space);
+				// in case there are more than one role for the same space we need to get the higher level of permission
+				if(context!= null && space!= null && context.equals(definedContext)) {
+					this.logInformation("currentRoleName: "+roleName+ " currentContext: "+context+" currentSpace: "+space+" definedContext: "+definedContext);
+					if(tenantList.contains(space) && roleName.equals(Util.getRoleProvider())) {
+						this.logInformation("Update space: "+space+ " with rolename: "+roleName);
+						// update role to provider for the specific space
+						for(int j = 0;j<rolesList.size();j++) {
+							if(rolesList.get(j).getSpace().equals(space)) {
+								rolesList.get(j).setRole(roleName);
+							}
+						}
+					} else if(!tenantList.contains(space)) {
+						this.logInformation("insert space: "+space+ " with rolename: "+roleName);
+						role = new AACRole();
+						role.setContext(context);
+						role.setRole(roleName);
+						role.setSpace(space);
+						rolesList.add(role);
+						tenantList.add(space);
+					}
 				}
 			}  
 	    	return rolesList;

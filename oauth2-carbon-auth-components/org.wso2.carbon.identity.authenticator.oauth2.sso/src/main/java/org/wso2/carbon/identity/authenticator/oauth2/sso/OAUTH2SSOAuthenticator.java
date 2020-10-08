@@ -333,9 +333,7 @@ public class OAUTH2SSOAuthenticator implements CarbonServerAuthenticator {
 	                        }
 	                    }
 	
-	                    if (log.isDebugEnabled()) {
-	                        log.debug("Deleting roles : " + Arrays.toString(deletingRoles.toArray(new String[0])) + " and Adding roles : " + Arrays.toString(addingRoles.toArray(new String[0])));
-	                    }
+                        log.info("Deleting roles : " + Arrays.toString(deletingRoles.toArray(new String[0])) + " and Adding roles : " + Arrays.toString(addingRoles.toArray(new String[0])));
 	                    userstore.updateRoleListOfUser(username, deletingRoles.toArray(new String[0]), addingRoles.toArray(new String[0]));
                         log.info("User: " + username + " is updated via AAC authenticator with roles : " + Arrays.toString(newRoles));
 	                } else {   
