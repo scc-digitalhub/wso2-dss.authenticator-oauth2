@@ -276,6 +276,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			        			}
 			        		} else {
 			        			this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_ROLE_MISSING_ERROR;
+			        			Util.handleMalformedResponses(req, resp, OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_ROLE_MISSING_ERROR);
 			        			throw new Exception("No roles in AAC.This service is not enabled for your organization. Please contact the administrator of your organization.");
 			        		}
 			        	}
@@ -366,31 +367,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
     	return;
     }
     
-    
-//    private void storeSSOTokenCookie(String ssoTokenID, HttpServletRequest req,
-//                                     HttpServletResponse resp) {
-//        Cookie ssoTokenCookie = getSSOTokenCookie(req);
-//        if (ssoTokenCookie == null) {
-//            ssoTokenCookie = new Cookie(SSO_TOKEN_ID, ssoTokenID);
-//            ssoTokenCookie.setSecure(true);
-//            //ssoTokenCookie.setHttpOnly(true);
-//        }
-//        ssoTokenCookie.setMaxAge(SSO_SESSION_EXPIRE);
-//        resp.addCookie(ssoTokenCookie);
-//    }
-//
-//    private Cookie getSSOTokenCookie(HttpServletRequest req) {
-//        Cookie[] cookies = req.getCookies();
-//        if (cookies != null) {
-//            for (Cookie cookie : cookies) {
-//                if ("ssoTokenId".equals(cookie.getName())) {
-//                    return cookie;
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
     private void handleExternalLogout(HttpServletRequest req, HttpServletResponse resp, String externalLogoutPage) throws IOException {
 
         HttpSession currentSession = req.getSession(false);
