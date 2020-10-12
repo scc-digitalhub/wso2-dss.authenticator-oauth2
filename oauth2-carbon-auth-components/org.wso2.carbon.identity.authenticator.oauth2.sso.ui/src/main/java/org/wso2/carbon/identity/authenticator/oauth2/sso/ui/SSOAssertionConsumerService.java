@@ -142,7 +142,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			this.logInformation("obtain access_token: "+response.getAccess_token());
 	        this.access_token = response.getAccess_token();
 	        this.refresh_token = response.getRefresh_token();
-	        //TODO call refresh_token to obtain new token if expired
     	}catch(Exception e) {
     		log.error("Error obtaining token: "+e.getMessage());
     		this.access_token = null;
@@ -246,7 +245,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
         
         String username = null;
         String tenantDomain = Util.getTenantDefault();
-        String tenantContext = Util.getRoleContext();
         try {
 	        if(auth_code!= null) {
 	        	getAccessToken(req,resp,auth_code,"access_token");
@@ -257,10 +255,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			        	boolean roleProvision = Util.getApiRoleInfoUrl() != null && !Util.getApiRoleInfoUrl().equals("");
 			        	if(roleProvision) {
 			        		List<AACRole> rolesInfo = handleAPI_ROLES_Request(req, resp, Util.getApiRoleInfoUrl());
-	//		        		if(username.equals("admin")) {
-	//		        			tenantDomain = "carbon.super";
-	//		        			this.isAdmin = true;
-	//		        		}
 			        		if(rolesInfo != null && rolesInfo.size()>0) {
 			        			if (rolesInfo.size() == 1) { // only 1 tenant available
 			        				tenantDomain = (String) rolesInfo.get(0).getSpace();
@@ -280,11 +274,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			        			throw new Exception("No roles in AAC.This service is not enabled for your organization. Please contact the administrator of your organization.");
 			        		}
 			        	}
-//			        	if(!username.contains("@")) { 
-//			        		username = username+"@carbon.super";
-//			        	}else {
-//			        		username = username+"@"+tenantDomain;
-//			        	}
 			        	username = username+"@"+tenantDomain;
 			        	this.logInformation("user name: "+username);
 		        	}
@@ -307,7 +296,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
 		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
 		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, this.isAdmin);
 		        req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
-	//	        req.getSession().setAttribute("refresh_token", this.refresh_token);
 		        String sessionIndex = null;
 		        sessionIndex = UUID.randomUUID().toString();
 		        String url = req.getRequestURI();
@@ -361,7 +349,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
     	req.getSession().setAttribute("tenantList", tenantList); // list of tenants for current user
     	req.getSession().setAttribute("tenantSelectedURL", Util.getTenantSelectedUrl()); // URL to redirect to after tenant is selected
     	req.getSession().setAttribute("tenantUsername", username); // will be needed after the redirect
-//    	req.getSession().setAttribute("refresh_token", this.refresh_token);
     	String url = Util.getSelectTenantUrl();
     	resp.sendRedirect(url); // redirects to tenant selection page
     	return;

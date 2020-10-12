@@ -67,8 +67,6 @@ public class Util {
     }
 
     private static Log log = LogFactory.getLog(Util.class);
-    private static Random random = new Random();
-    private static String serviceProviderId = null;
     private static String identityProviderSSOServiceURL = null;
     private static Map<String, String> parameters = new HashMap<String, String>();
     private static String identityProviderSLOServiceURL = parameters.get(
@@ -108,7 +106,6 @@ public class Util {
                 .getAuthenticatorConfig(OAUTH2SSOAuthenticatorConstants.AUTHENTICATOR_NAME);
         if (authenticatorConfig != null) {
             parameters = authenticatorConfig.getParameters();
-            serviceProviderId = parameters.get(OAUTH2SSOAuthenticatorConstants.SERVICE_PROVIDER_ID);
             identityProviderSSOServiceURL = parameters
                     .get(OAUTH2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SSO_SERVICE_URL);
             identityProviderSLOServiceURL = parameters
@@ -157,18 +154,6 @@ public class Util {
         return isEnabled;
     }
 
-    /**
-     * returns the service provider ID of a particular server
-     *
-     * @return service provider ID
-     */
-    public static String getServiceProviderId() {
-
-        if (!initSuccess) {
-            initSSOConfigParams();
-        }
-        return serviceProviderId;
-    }
 
     /**
      * returns the Identity Provider SSO Service URL
