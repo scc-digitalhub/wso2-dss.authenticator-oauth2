@@ -73,6 +73,7 @@ public class Util {
             OAUTH2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
     private static String loginPage = "/carbon/admin/login.jsp";
     private static String landingPage = null;
+    private static String logoutService = null;
     private static String user_info = null;
     private static String externalLogoutPage = null;
     private static boolean logoutSupportedIDP = false;
@@ -112,6 +113,7 @@ public class Util {
                     .get(OAUTH2SSOAuthenticatorConstants.IDENTITY_PROVIDER_SLO_SERVICE_URL);
             loginPage = parameters.get(OAUTH2SSOAuthenticatorConstants.LOGIN_PAGE);
             landingPage = parameters.get(OAUTH2SSOAuthenticatorConstants.LANDING_PAGE);
+            logoutService = parameters.get(OAUTH2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_SERVICE);
             externalLogoutPage = parameters.get(OAUTH2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE);
             logoutSupportedIDP = Boolean.parseBoolean(parameters.get(OAUTH2SSOAuthenticatorConstants.LOGOUT_SUPPORTED_IDP));
             assertionConsumerServiceUrl = parameters.get(OAUTH2SSOAuthenticatorConstants.ASSERTION_CONSUMER_SERVICE_URL);
@@ -258,6 +260,10 @@ public class Util {
      */
     public static String getLandingPage() {
         return landingPage;
+    }
+    
+    public static String getLogoutService() {
+        return logoutService;
     }
 
     /**

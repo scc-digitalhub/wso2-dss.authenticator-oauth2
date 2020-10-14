@@ -48,7 +48,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
     public static final Log log = LogFactory.getLog(SSOAssertionConsumerService.class);
     public static final String SSO_TOKEN_ID = "ssoTokenId";
     private String access_token;
-    private String refresh_token;
     private String error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_MALFORMED;
     private boolean isAdmin = false;
     private String backEndServerURL;
@@ -101,6 +100,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
             return;
         }
         try {
+        	clearCookies(req, resp);
             handleOAUTH2Responses(req, resp, auth_code);
         } catch (Exception e) {
             log.error("Error when processing the OAUTH2 Assertion in the request.", e);
@@ -141,11 +141,9 @@ public class SSOAssertionConsumerService extends HttpServlet {
 			AuthorizationToken response = restTemplate.postForObject(url_token, requestBody, AuthorizationToken.class);
 			this.logInformation("obtain access_token: "+response.getAccess_token());
 	        this.access_token = response.getAccess_token();
-	        this.refresh_token = response.getRefresh_token();
     	}catch(Exception e) {
     		log.error("Error obtaining token: "+e.getMessage());
     		this.access_token = null;
-	        this.refresh_token = null;
     		this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_TOKEN_ERROR;
     		throw new Exception("Error obtaining token: " + OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_TOKEN_ERROR);
     	}
@@ -291,7 +289,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	
 	        if(username != null) {
 		        // Set the OAUTH2 access_token as a HTTP Attribute
-		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, this.access_token);
+//		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, this.access_token);
 		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
 		        req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, this.isAdmin);
@@ -346,9 +344,9 @@ public class SSOAssertionConsumerService extends HttpServlet {
      * @throws IOException 		Error while redirecting
      */
     private void selectTenant(HttpServletRequest req, HttpServletResponse resp, List<AACRole> tenantList, String username) throws ServletException, IOException {
-    	req.getSession().setAttribute("tenantList", tenantList); // list of tenants for current user
-    	req.getSession().setAttribute("tenantSelectedURL", Util.getTenantSelectedUrl()); // URL to redirect to after tenant is selected
-    	req.getSession().setAttribute("tenantUsername", username); // will be needed after the redirect
+    	req.getSession(false).setAttribute("tenantList", tenantList); // list of tenants for current user
+    	req.getSession(false).setAttribute("tenantSelectedURL", Util.getTenantSelectedUrl()); // URL to redirect to after tenant is selected
+    	req.getSession(false).setAttribute("tenantUsername", username); // will be needed after the redirect
     	String url = Util.getSelectTenantUrl();
     	resp.sendRedirect(url); // redirects to tenant selection page
     	return;

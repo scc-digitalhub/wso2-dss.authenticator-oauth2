@@ -52,7 +52,7 @@ public class SSOForwardSelectedTenant extends HttpServlet {
      */
     private void handleOAUTH2Responses(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, IllegalStateException, Exception {
-    	username = (String) req.getSession().getAttribute("tenantUsername");
+    	username = (String) req.getSession(false).getAttribute("tenantUsername");
 		String tenantDomain = (String) req.getParameter("tenantRadio");
 		String selectedRole = (String) req.getParameter("selectedRole");
 		String tenantContext = Util.getRoleContext();
@@ -64,26 +64,21 @@ public class SSOForwardSelectedTenant extends HttpServlet {
 		if(username != null) {
 			boolean isProvider = Util.isProvider(selectedRole, tenantContext);
 			req.setAttribute(OAUTH2SSOAuthenticatorConstants.IS_ADMIN, isProvider);
-//			if(username.equals("admin")) { 
-//				username = username+"@carbon.super";
-//	    	}else {
-//	    		username = username+"@"+tenantDomain;
-//	    	}
 			username = username+"@"+tenantDomain;
-			req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, req.getSession().getAttribute("refresh_token"));
+//			req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_ATTR_OAUTH2_RESP_TOKEN, req.getSession().getAttribute("refresh_token"));
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 		    req.setAttribute(OAUTH2SSOAuthenticatorConstants.HTTP_POST_PARAM_OAUTH2_ROLES, tenantDomain);
-		    req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
+		    req.getSession(false).setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, username);
 		    String sessionIndex = null;
 		    sessionIndex = UUID.randomUUID().toString();
 		    String url = req.getRequestURI();
 		    url = url.replace("forwardtenant","carbon/admin/login_action.jsp?username=" + URLEncoder.encode(username, "UTF-8"));
 		    if(sessionIndex != null) {
 		        url += "&" + OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX + "=" + URLEncoder.encode(sessionIndex, "UTF-8");
-		        req.getSession().setAttribute(OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX, sessionIndex);
+		        req.getSession(false).setAttribute(OAUTH2SSOAuthenticatorConstants.IDP_SESSION_INDEX, sessionIndex);
 		    }
 		    backEndServerURL = req.getParameter("backendURL");
-	    	HttpSession session = req.getSession();
+	    	HttpSession session = req.getSession(false);
 	    	ServletContext servletContext = session.getServletContext();
 	        if (backEndServerURL == null) {
 	            backEndServerURL = CarbonUIUtil.getServerURL(servletContext, session);
@@ -95,7 +90,7 @@ public class SSOForwardSelectedTenant extends HttpServlet {
 	        try {
 	        	if(checkTenant) {
 		    		RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
-				    req.getSession().setAttribute("CarbonAuthenticator", new OAUTH2SSOUIAuthenticator());
+				    req.getSession(false).setAttribute("CarbonAuthenticator", new OAUTH2SSOUIAuthenticator());
 		    		reqDispatcher.forward(req, resp);
 		        }else {
 		        	Util.handleMalformedResponses(req, resp, tenantProvision.getTenantError());

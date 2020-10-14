@@ -12,6 +12,7 @@
                 <skip-link>../oauth2-sso-acs/select_tenant.jsp</skip-link>
                 <skip-link>/oauth2_acs</skip-link>
                 <skip-link>/forwardtenant</skip-link>
+                <skip-link>/logout_dss</skip-link>
             </skip-authentication>
         </menu>
     </menus>
@@ -28,6 +29,12 @@
 			<url-pattern>/forwardtenant</url-pattern>
 			<display-name>OAUTH2 SSO Consumer Servlet for MultiTenant</display-name>
 			<servlet-class>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.SSOForwardSelectedTenant</servlet-class>
+		</servlet>
+		<servlet id="OAUTH2SSOAssertionLogoutService">
+			<servlet-name>OAUTH2SSOAssertionLogoutService</servlet-name>
+			<url-pattern>/logout_dss</url-pattern>
+			<display-name>OAUTH2 SSO Consumer Servlet for Logout</display-name>
+			<servlet-class>org.wso2.carbon.identity.authenticator.oauth2.sso.ui.SSOLogoutService</servlet-class>
 		</servlet>
 	</servlets>
 	

@@ -8,30 +8,22 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.core.security.AuthenticatorsConfiguration;
-import org.wso2.carbon.core.services.util.CarbonAuthenticationUtil;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.ui.client.OAUTH2SSOAuthenticationClient;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.ui.internal.OAUTH2SSOAuthFEDataHolder;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.ui.session.SSOSessionManager;
-import org.wso2.carbon.tenant.mgt.stub.beans.xsd.TenantInfoBean;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.OAUTH2SSOAuthenticatorConstants;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.common.Util;
 import org.wso2.carbon.identity.authenticator.oauth2.sso.tenant.TenantServiceClient;
 import org.wso2.carbon.ui.AbstractCarbonUIAuthenticator;
 import org.wso2.carbon.ui.CarbonSSOSessionManager;
 import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ServerConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -153,9 +145,9 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
             authClient.logout(session);
 
 //        // memory cleanup : remove the invalid session from the invalid session list at the SSOSessionManager
-//        CarbonSSOSessionManager ssoSessionManager =
-//                    OAUTH2SSOAuthFEDataHolder.getInstance().getCarbonSSOSessionManager();
-//        ssoSessionManager.removeInvalidSession(session.getId());
+        CarbonSSOSessionManager ssoSessionManager =
+                    OAUTH2SSOAuthFEDataHolder.getInstance().getCarbonSSOSessionManager();
+        ssoSessionManager.removeInvalidSession(session.getId());
 
             if (request != null) {
                 // this attribute is used to avoid generate the logout request
@@ -163,9 +155,10 @@ public class OAUTH2SSOUIAuthenticator extends AbstractCarbonUIAuthenticator {
                 request.setAttribute(OAUTH2SSOAuthenticatorConstants.LOGGED_IN_USER, session.getAttribute(
                         "logged-user"));
 
-                if(!Util.isLogoutSupportedIDP()) {
-                    request.setAttribute(OAUTH2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage());
-                }
+//                if(!Util.isLogoutSupportedIDP()) {
+//                	log.info(Util.getExternalLogoutPage() + "?post_logout_redirect_uri=https://innovation.deda.com/dss/logout_dss");
+//                    request.setAttribute(OAUTH2SSOAuthenticatorConstants.EXTERNAL_LOGOUT_PAGE, Util.getExternalLogoutPage() + "?post_logout_redirect_uri=https://innovation.deda.com/dss/logout_dss");
+//                }
             }
 
             auditResult = OAUTH2SSOAuthenticatorConstants.AUDIT_RESULT_SUCCESS;
