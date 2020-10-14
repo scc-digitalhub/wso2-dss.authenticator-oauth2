@@ -89,7 +89,7 @@
     </pluginRepositories>
     
     <properties>
-        <custom.authenticator.oauth2>1.0.1</custom.authenticator.oauth2>
+        <custom.authenticator.oauth2>1.0.1-SNAPSHOT</custom.authenticator.oauth2>
         <wss4j.version>1.5.11.wso2v15</wss4j.version>
         <wss4j.xml.security.imp.pkg.version.range>[1.4.2.patched,2.0.0)</wss4j.xml.security.imp.pkg.version.range>
         <wss4j.ws.security.imp.pkg.version.range>[1.5.11,2.0.0)</wss4j.ws.security.imp.pkg.version.range>
