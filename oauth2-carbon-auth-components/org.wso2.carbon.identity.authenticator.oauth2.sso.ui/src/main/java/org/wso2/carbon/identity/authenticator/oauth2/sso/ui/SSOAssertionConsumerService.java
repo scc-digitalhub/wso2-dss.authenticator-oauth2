@@ -284,6 +284,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        if (username == null) {
 	            log.error("OAUTH2Response does not contain the username");
 	            this.error_reason = OAUTH2SSOAuthenticatorConstants.ErrorMessageConstants.RESPONSE_USER_ERROR;
+	            Util.handleMalformedResponses(req, resp, this.error_reason);
 	            throw new Exception("OAUTH2Response does not contain the username");
 	        }
 	
