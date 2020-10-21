@@ -105,7 +105,8 @@ In the file repository/conf/security/authenticators.xml put the following xml co
      <Parameter name="APIRoleInfoURL">http://localhost:8080/aac/userroles/me</Parameter>
      <Parameter name="GetRolesOfTokenURL">http://localhost:8080/aac/userroles/token</Parameter>
      <Parameter name="ApiKeyCheckURL">http://localhost:8080/aac/apikeycheck</Parameter>
-     <Parameter name="MaxExpireSecToken">86400</Parameter>	     
+     <Parameter name="APIClientRoleInfoURL">http://localhost:8080/aac/userroles/client</Parameter>
+     <Parameter name="RoleProvider">ROLE_MANAGER</Parameter>
      <Parameter name="ScopesListUserInfo">profile.basicprofile.me profile.accountprofile.me user.roles.me user.roles.read</Parameter>
      <Parameter name="UserNameField">username</Parameter>
      <Parameter name="RoleContext">YOUR_ROLE_CONTEXT</Parameter>
