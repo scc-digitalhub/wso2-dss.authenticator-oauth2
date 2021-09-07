@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -134,6 +135,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
 	        RestTemplate restTemplate = new RestTemplate();
 	        HttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
 	        HttpMessageConverter jsonHttpMessageConverternew = new  MappingJackson2HttpMessageConverter();
+	        jsonHttpMessageConverternew.getObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
 			list.add(formHttpMessageConverter);
 			list.add(jsonHttpMessageConverternew);
